@@ -2,135 +2,176 @@
 
 <div align="center">
 
-![NansOS Logo](docs/images/logo.png)
+<img src="docs/images/logo.png" alt="NansOS Logo" width="400px"/>
 
-A RobCo-inspired 64-bit operating system with a retro-futuristic terminal interface.
+### A RobCo-inspired 64-bit operating system with a retro-futuristic terminal interface
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/Nanaimo2013/NansOS/releases)
-[![Build Status](https://img.shields.io/github/workflow/status/Nanaimo2013/NansOS/build)](https://github.com/Nanaimo2013/NansOS/actions)
-[![Issues](https://img.shields.io/github/issues/Nanaimo2013/NansOS)](https://github.com/Nanaimo2013/NansOS/issues)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/Nanaimo2013/NansOS/pulls)
-[![Last Commit](https://img.shields.io/github/last-commit/Nanaimo2013/NansOS)](https://github.com/Nanaimo2013/NansOS/commits)
-[![Stars](https://img.shields.io/github/stars/Nanaimo2013/NansOS?style=social)](https://github.com/Nanaimo2013/NansOS/stargazers)
+<br/>
+
+[![License](https://img.shields.io/badge/LICENSE-MIT-green.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
+[![Version](https://img.shields.io/badge/VERSION-1.0.0-blue.svg?style=for-the-badge)](https://github.com/Nanaimo2013/NansOS/releases)
+[![Build](https://img.shields.io/badge/BUILD-passing-brightgreen.svg?style=for-the-badge)](https://github.com/Nanaimo2013/NansOS/actions)
+
+<br/>
+
+[📖 Documentation](docs/architecture.md) •
+[🚀 Getting Started](#-getting-started) •
+[💡 Features](#-features) •
+[📝 Contributing](CONTRIBUTING.md)
+
+<br/>
+
+<img src="docs/images/boot.png" width="400" alt="Boot Screen"/>
+<img src="docs/images/terminal.png" width="400" alt="Terminal Interface"/>
 
 </div>
 
-## Overview
+<br/>
 
-NansOS is a bare metal operating system that recreates the iconic RobCo terminal experience from the Fallout series. Written in assembly and designed for modern 64-bit systems, it features a retro-futuristic interface while leveraging contemporary hardware capabilities.
+## ✨ Features
 
-### Features
+<table>
+<tr>
+<td>
 
-- **64-bit Architecture**: Full support for modern x86_64 systems
-- **RobCo-Style Interface**: Authentic green-text terminal experience
-- **Hardware Support**:
-  - PS/2 and USB keyboard/mouse input
-  - VGA text and graphics modes
-  - ATA/IDE disk operations
-  - FAT12 filesystem
-- **Modern Development**:
-  - Cross-platform build system
-  - Debugging support
-  - Modular architecture
+### 🖥️ System Architecture
+- 64-bit x86_64 support
+- Protected & Long mode
+- Modern memory management
+- Hardware abstraction layer
 
-## Getting Started
+</td>
+<td>
+
+### 🎮 Hardware Support
+- PS/2 & USB input devices
+- VGA text & graphics modes
+- ATA/IDE disk operations
+- FAT12 filesystem support
+
+</td>
+</tr>
+<tr>
+<td>
+
+### 🛠️ Development Tools
+- Cross-platform build system
+- Integrated debugging
+- QEMU testing support
+- Modular architecture
+
+</td>
+<td>
+
+### 🌟 RobCo Interface
+- Authentic terminal experience
+- Green-text display mode
+- Command-line interface
+- System monitoring tools
+
+</td>
+</tr>
+</table>
+
+## 🚀 Getting Started
 
 ### Prerequisites
 
-[![NASM](https://img.shields.io/badge/NASM-2.15%2B-blue.svg)](https://www.nasm.us/)
-[![MinGW-w64](https://img.shields.io/badge/MinGW--w64-Latest-green.svg)](http://mingw-w64.org/)
-[![QEMU](https://img.shields.io/badge/QEMU-Latest-orange.svg)](https://www.qemu.org/)
-[![Git](https://img.shields.io/badge/Git-Latest-red.svg)](https://git-scm.com/)
-
-### Building from Source
-
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/Nanaimo2013/NansOS.git
-   cd NansOS
-   ```
-
-2. Build the OS:
-   ```bash
-   # On Windows
-   .\build.ps1
-   # Or use the run script
-   run.bat build
-   ```
-
-3. Run in QEMU:
-   ```bash
-   # On Windows
-   run.bat
-   ```
-
-### Development
-
-The project structure is organized as follows:
-```
-NansOS/
-├── src/
-│   ├── boot/          # Bootloader
-│   ├── kernel/        # Kernel components
-│   ├── drivers/       # Hardware drivers
-│   ├── gui/           # Interface components
-│   └── config/        # Build configuration
-├── builds/            # Build outputs
-├── docs/             # Documentation
-└── tools/            # Development tools
-```
-
-## Documentation
-
-[![Documentation](https://img.shields.io/badge/docs-latest-brightgreen.svg)](docs/architecture.md)
-- [Architecture Overview](docs/architecture.md)
-- [Build System](docs/building.md)
-- [Contributing Guide](CONTRIBUTING.md)
-- [Changelog](CHANGELOG.md)
-
-## Screenshots
-
 <div align="center">
-<img src="docs/images/boot.png" width="400" alt="Boot Screen">
-<img src="docs/images/terminal.png" width="400" alt="Terminal Interface">
+
+[![NASM 2.15+](https://img.shields.io/badge/NASM-2.15+-orange.svg?style=for-the-badge)](https://www.nasm.us/)
+[![MinGW-w64](https://img.shields.io/badge/MinGW--w64-Latest-brightgreen.svg?style=for-the-badge)](http://mingw-w64.org/)
+[![QEMU](https://img.shields.io/badge/QEMU-Latest-blue.svg?style=for-the-badge)](https://www.qemu.org/)
+[![Git](https://img.shields.io/badge/Git-Latest-red.svg?style=for-the-badge)](https://git-scm.com/)
+
 </div>
 
-## Contributing
+### Quick Start
 
-[![Contributors](https://img.shields.io/github/contributors/Nanaimo2013/NansOS)](https://github.com/Nanaimo2013/NansOS/graphs/contributors)
-[![Commit Activity](https://img.shields.io/github/commit-activity/m/Nanaimo2013/NansOS)](https://github.com/Nanaimo2013/NansOS/commits/main)
+```bash
+# Clone repository
+git clone https://github.com/Nanaimo2013/NansOS.git
+cd NansOS
 
-Contributions are welcome! Please read our [Contributing Guide](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
+# Build OS
+.\build.ps1    # Windows
+./build.sh     # Linux
 
-## Versioning
+# Run in QEMU
+run.bat        # Windows
+./run.sh       # Linux
+```
 
-[![Releases](https://img.shields.io/github/v/release/Nanaimo2013/NansOS)](https://github.com/Nanaimo2013/NansOS/releases)
+## 📦 Project Structure
 
-We use [SemVer](http://semver.org/) for versioning. For available versions, see the [releases page](https://github.com/Nanaimo2013/NansOS/releases).
+```
+NansOS/
+├── src/               # Source code
+│   ├── boot/         # Bootloader components
+│   ├── kernel/       # Core kernel modules
+│   ├── drivers/      # Hardware drivers
+│   └── gui/          # Interface components
+├── docs/             # Documentation
+├── tools/            # Development tools
+└── builds/           # Build artifacts
+```
 
-## Authors
+## 📊 Project Status
 
-- **Nanaimo_2013** - *Initial work* - [Nanaimo2013](https://github.com/Nanaimo2013)
+<div align="center">
 
-## License
+[![Release](https://img.shields.io/badge/RELEASE-v1.0.0-blue.svg?style=for-the-badge)](https://github.com/Nanaimo2013/NansOS/releases)
+[![Issues](https://img.shields.io/github/issues/Nanaimo2013/NansOS?style=for-the-badge&color=red)](https://github.com/Nanaimo2013/NansOS/issues)
+[![PRs](https://img.shields.io/badge/PRs-welcome-yellow.svg?style=for-the-badge)](https://github.com/Nanaimo2013/NansOS/pulls)
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+<br/>
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+[![Contributors](https://img.shields.io/github/contributors/Nanaimo2013/NansOS?style=for-the-badge&color=orange)](https://github.com/Nanaimo2013/NansOS/graphs/contributors)
+[![Activity](https://img.shields.io/github/commit-activity/m/Nanaimo2013/NansOS?style=for-the-badge&color=blue)](https://github.com/Nanaimo2013/NansOS/commits/main)
+[![Size](https://img.shields.io/github/repo-size/Nanaimo2013/NansOS?style=for-the-badge&color=purple)](https://github.com/Nanaimo2013/NansOS)
 
-## Acknowledgments
+</div>
 
-- Inspired by the RobCo terminals from the Fallout series
-- Thanks to the OSDev community for their invaluable resources
-- All contributors who help improve this project
+## 📚 Documentation
 
-## Status
+- [🏛️ Architecture Overview](docs/architecture.md)
+- [🔨 Build System Guide](docs/building.md)
+- [📝 Changelog](CHANGELOG.md)
+- [🛣️ Project Roadmap](docs/roadmap.md)
 
-[![Release Date](https://img.shields.io/github/release-date/Nanaimo2013/NansOS)](https://github.com/Nanaimo2013/NansOS/releases)
-[![Code Size](https://img.shields.io/github/languages/code-size/Nanaimo2013/NansOS)](https://github.com/Nanaimo2013/NansOS)
-[![Repo Size](https://img.shields.io/github/repo-size/Nanaimo2013/NansOS)](https://github.com/Nanaimo2013/NansOS)
+## 🤝 Contributing
 
-- Current Version: 1.0.0
-- Status: Active Development
-- [View Roadmap](docs/roadmap.md)
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
+
+<div align="center">
+
+[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg?style=for-the-badge)](CODE_OF_CONDUCT.md)
+
+</div>
+
+## 📄 License
+
+<div align="center">
+
+[![MIT License](https://img.shields.io/badge/LICENSE-MIT-green.svg?style=for-the-badge)](LICENSE)
+
+Copyright © 2024 NanCo Industries
+
+</div>
+
+## 🙏 Acknowledgments
+
+- Inspired by RobCo terminals from Fallout
+- Built with support from the OSDev community
+- Special thanks to all contributors
+
+---
+
+<div align="center">
+
+**[Website](https://nanaimo2013.github.io/NansOS)** •
+**[Documentation](docs/architecture.md)** •
+**[Report Bug](https://github.com/Nanaimo2013/NansOS/issues)** •
+**[Request Feature](https://github.com/Nanaimo2013/NansOS/issues)**
+
+</div>

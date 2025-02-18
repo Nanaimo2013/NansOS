@@ -2,9 +2,10 @@
 [ORG 0x7E00]        ; Stage 2 loaded at 0x7E00
 
 ; Constants
-KERNEL_LOAD_ADDR    equ 0x1000
+KERNEL_LOAD_ADDR    equ 0x100000  ; Load kernel at 1MB
 STACK_ADDR          equ 0x90000
-KERNEL_SECTOR       equ 4     ; Kernel starts at sector 4
+KERNEL_SECTOR       equ 4         ; Kernel starts at sector 4
+KERNEL_SEGMENTS     equ 40        ; Load 40 sectors (20KB)
 
 stage2_start:
     ; Set up segments
@@ -29,19 +30,28 @@ stage2_start:
     jc load_kernel_legacy    ; If extensions not supported, use legacy method
 
     ; Load kernel using extensions
+    mov si, msg_loading
+    call print_string
+    
     mov si, dap
     mov ah, 0x42
     mov dl, [bootDrive]
     int 0x13
-    jnc enter_protected_mode ; If successful, enter protected mode
+    jnc kernel_loaded       ; If successful, continue
     
     ; Fall back to legacy loading if extension load fails
 load_kernel_legacy:
+    mov si, msg_legacy
+    call print_string
+    
+    ; Convert linear address to segment:offset
     mov ax, KERNEL_LOAD_ADDR >> 4
     mov es, ax
     xor bx, bx
+    
+    ; Load kernel sectors
     mov ah, 0x02
-    mov al, 40              ; Load 40 sectors (20KB)
+    mov al, KERNEL_SEGMENTS  ; Number of sectors
     mov ch, 0               ; Cylinder 0
     mov cl, KERNEL_SECTOR   ; Start sector
     mov dh, 0               ; Head 0
@@ -49,7 +59,11 @@ load_kernel_legacy:
     int 0x13
     jc error
 
-enter_protected_mode:
+kernel_loaded:
+    mov si, msg_ok
+    call print_string
+    
+    ; Prepare for protected mode
     cli                     ; Disable interrupts
     
     ; Enable A20 line
@@ -59,73 +73,40 @@ enter_protected_mode:
 
     ; Load GDT
     lgdt [gdt_descriptor]
+    
+    mov si, msg_pmode
+    call print_string
 
     ; Switch to protected mode
     mov eax, cr0
     or eax, 1
     mov cr0, eax
 
-    ; Jump to 32-bit code
-    jmp dword 0x08:protected_mode
-
-return_to_real_mode:
-    [BITS 32]
-    ; Load real mode segments
-    mov ax, 0x10
-    mov ds, ax
-    mov es, ax
-    mov fs, ax
-    mov gs, ax
-    mov ss, ax
-    
-    ; Disable protected mode
-    mov eax, cr0
-    and al, 0xFE
-    mov cr0, eax
-    
-    ; Far jump to real mode
-    jmp word 0x0000:real_mode_return
-
-error:
-    mov si, msg_error
-    call print_string
-    jmp $
+    ; Flush CPU pipeline with far jump
+    jmp dword 0x08:.protected_mode_start
 
 [BITS 32]
-protected_mode:
-    ; Set up protected mode segments
-    mov ax, 0x10
+.protected_mode_start:
+    ; Set up segment registers for protected mode
+    mov ax, 0x10           ; Data segment selector
     mov ds, ax
     mov es, ax
     mov fs, ax
     mov gs, ax
     mov ss, ax
-    mov esp, STACK_ADDR
+    mov esp, STACK_ADDR    ; Set up new stack
 
-    ; Clear screen
+    ; Clear screen to indicate successful mode switch
     mov edi, 0xB8000
     mov ecx, 2000
-    mov ax, 0x0720     ; White on black space
+    mov ax, 0x0720
     rep stosw
 
     ; Jump to kernel
-    mov eax, KERNEL_LOAD_ADDR
-    jmp eax
+    jmp dword 0x08:KERNEL_LOAD_ADDR
 
-[BITS 16]
-real_mode_return:
-    ; Restore real mode segments
-    mov ax, 0x0000
-    mov ds, ax
-    mov es, ax
-    mov fs, ax
-    mov gs, ax
-    mov ss, ax
-    mov sp, 0x7C00
-    
-    sti                ; Enable interrupts
-    
-    mov si, msg_real_mode
+error:
+    mov si, msg_error
     call print_string
     jmp $
 
@@ -154,15 +135,18 @@ bootDrive:      db 0
 dap:
     db 0x10      ; Size of packet
     db 0         ; Reserved
-    dw 40        ; Number of sectors
+    dw KERNEL_SEGMENTS  ; Number of sectors
     dw 0         ; Offset
     dw KERNEL_LOAD_ADDR >> 4  ; Segment
     dq KERNEL_SECTOR ; Starting LBA
 
 ; Messages
-msg_stage2:     db 'Stage 2 loaded', 0
+msg_stage2:     db 'NansOS Stage 2 Bootloader v1.0', 0
+msg_loading:    db 'Loading kernel using INT 13h extensions...', 0
+msg_legacy:     db 'Loading kernel using legacy BIOS calls...', 0
+msg_ok:         db '[OK]', 0
 msg_error:      db 'Error: System halted', 0
-msg_real_mode:  db 'Returned to real mode', 0
+msg_pmode:      db 'Entering protected mode...', 0
 
 ; GDT
 align 8
