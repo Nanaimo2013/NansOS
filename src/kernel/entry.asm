@@ -1,100 +1,161 @@
-[BITS 32]
-; Kernel Entry Point for NansOS
+[BITS 16]
+; NansOS Installation Kernel
 
 section .text
 global _start
 
 _start:
-    ; Set up segment registers
-    mov ax, 0x10       ; Data segment selector
+    ; Set up segments
+    mov ax, cs
     mov ds, ax
     mov es, ax
-    mov fs, ax
-    mov gs, ax
     mov ss, ax
-    mov esp, 0x90000   ; Set up stack
+    mov sp, 0x9000
 
-    ; Initialize kernel
-    call init_kernel
+    ; Save drive info
+    mov [bootDrive], dl    ; Source drive
+    mov [driveCount], dh   ; Number of drives
 
-    ; Enter command loop
-    jmp command_loop
-
-init_kernel:
     ; Clear screen
-    mov edi, 0xB8000    ; Video memory address
-    mov ecx, 2000       ; 80x25 characters (one word each)
-    mov ax, 0x0720      ; Light gray space on black background
-    rep stosw
+    mov ax, 0x0003
+    int 0x10
 
     ; Print welcome message
-    mov esi, welcome_msg
+    mov si, msg_welcome
     call print_string
-    
-    ; Print version info
-    mov esi, version_msg
+
+    ; Show installation menu
+    call show_menu
+
+    ; Wait for drive selection
+    call get_key
+    sub al, '0'
+    cmp al, [driveCount]
+    jae .invalid_drive
+
+    ; Save target drive
+    add al, 0x80        ; Convert to drive number
+    mov [targetDrive], al
+
+    ; Confirm installation
+    mov si, msg_confirm
     call print_string
-    
-    ; Print status message
-    mov esi, status_msg
+    call get_key
+    cmp al, 'Y'
+    je .start_install
+    cmp al, 'y'
+    je .start_install
+    jmp .cancel_install
+
+.start_install:
+    ; Show progress
+    mov si, msg_installing
     call print_string
-    
-    ; Print prompt
-    mov esi, prompt
+
+    ; Format target drive
+    mov dl, [targetDrive]
+    call format_drive
+    jc .install_error
+
+    ; Copy bootloader
+    call copy_bootloader
+    jc .install_error
+
+    ; Copy kernel
+    call copy_kernel
+    jc .install_error
+
+    ; Installation complete
+    mov si, msg_success
+    call print_string
+    jmp .reboot
+
+.invalid_drive:
+    mov si, msg_invalid
+    call print_string
+    jmp .cancel_install
+
+.install_error:
+    mov si, msg_error
+    call print_string
+
+.cancel_install:
+    mov si, msg_cancelled
+    call print_string
+
+.reboot:
+    mov si, msg_reboot
+    call print_string
+    call get_key
+    int 0x19        ; Reboot
+
+; Show installation menu
+show_menu:
+    mov si, msg_menu
     call print_string
     ret
 
-command_loop:
-    ; Wait for keyboard input
-    mov esi, prompt
-    call print_string
-    jmp command_loop
+; Get keyboard input
+get_key:
+    mov ah, 0
+    int 0x16
+    ret
 
-; Print string (ESI = string pointer)
+; Format target drive
+format_drive:
+    ; TODO: Implement drive formatting
+    clc             ; Clear carry (success)
+    ret
+
+; Copy bootloader to target drive
+copy_bootloader:
+    ; TODO: Implement bootloader copy
+    clc
+    ret
+
+; Copy kernel to target drive
+copy_kernel:
+    ; TODO: Implement kernel copy
+    clc
+    ret
+
+; Print string (SI = string pointer)
 print_string:
-    push eax
-    push ecx
-    push edi
-    
-    mov edi, [cursor_pos]  ; Get current cursor position
-    shl edi, 1             ; Multiply by 2 (each character is 2 bytes)
-    add edi, 0xB8000       ; Add video memory base
-    mov ah, 0x0A           ; Light green on black
-    
+    pusha
+    mov ah, 0x0E
+    mov bh, 0
+    mov bl, 0x0A    ; Light green
 .loop:
-    lodsb                  ; Load next character
-    test al, al            ; Check for null terminator
+    lodsb
+    test al, al
     jz .done
-    
-    cmp al, 10            ; Check for newline
-    je .newline
-    
-    mov [edi], al         ; Store character
-    mov [edi + 1], ah     ; Store attribute
-    add edi, 2            ; Next character position
-    inc dword [cursor_pos]
+    int 0x10
     jmp .loop
-
-.newline:
-    mov eax, [cursor_pos]
-    mov ecx, 80           ; Screen width
-    div ecx               ; Divide by screen width
-    inc eax               ; Move to next line
-    mul ecx               ; Multiply by screen width
-    mov [cursor_pos], eax ; Update cursor position
-    jmp .loop
-    
 .done:
-    pop edi
-    pop ecx
-    pop eax
+    mov al, 13
+    int 0x10
+    mov al, 10
+    int 0x10
+    popa
     ret
 
 section .data
-welcome_msg:    db 'NansOS Kernel v1.0.0', 10, 0
-version_msg:    db 'Copyright (c) 2024 NanCo Industries', 10, 0
-status_msg:     db 'System initialized in protected mode', 10, 0
-prompt:         db '> ', 0
+bootDrive:      db 0    ; Source (USB) drive
+targetDrive:    db 0    ; Target (HDD) drive
+driveCount:     db 0    ; Number of available drives
 
-section .bss
-cursor_pos:     resd 1    ; Current cursor position (in characters) 
+; Messages
+msg_welcome:    db 'NansOS Installation Program', 13, 10
+                db '=========================', 0
+msg_menu:       db 'Select target drive:', 13, 10
+                db '0) First Hard Drive', 13, 10
+                db '1) Second Hard Drive', 13, 10
+                db '2) Third Hard Drive', 0
+msg_confirm:    db 'WARNING: This will erase ALL data on the selected drive!', 13, 10
+                db 'Continue? (Y/N): ', 0
+msg_installing: db 'Installing NansOS...', 0
+msg_success:    db 'Installation complete!', 0
+msg_error:      db 'Installation failed!', 0
+msg_invalid:    db 'Invalid drive selection!', 0
+msg_cancelled:  db 'Installation cancelled.', 0
+msg_reboot:     db 'Press any key to reboot...', 0 

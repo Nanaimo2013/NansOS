@@ -2,106 +2,133 @@
 
 <div align="center">
 
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/Nanaimo2013/NansOS/pulls)
-[![Contributors](https://img.shields.io/github/contributors/Nanaimo2013/NansOS)](https://github.com/Nanaimo2013/NansOS/graphs/contributors)
-[![Issues](https://img.shields.io/github/issues/Nanaimo2013/NansOS)](https://github.com/Nanaimo2013/NansOS/issues)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Discord](https://img.shields.io/badge/Discord-Join%20Chat-blue)](https://discord.gg/nanos)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=for-the-badge)](https://github.com/Nanaimo2013/NansOS/pulls)
+[![Contributors](https://img.shields.io/badge/Contributors-Active-blue.svg?style=for-the-badge)](https://github.com/Nanaimo2013/NansOS/graphs/contributors)
+[![Discord](https://img.shields.io/badge/Discord-Join%20Chat-7289DA.svg?style=for-the-badge)](https://discord.gg/nanos)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
 
 </div>
 
+## 🌟 Welcome!
+
 First off, thank you for considering contributing to NansOS! It's people like you that make NansOS such a great tool.
 
-## Code of Conduct
+<table>
+<tr>
+<td width="50%">
 
-[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md)
+### 🤝 Code of Conduct
+[![Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md)
 
-This project and everyone participating in it is governed by the NansOS Code of Conduct. By participating, you are expected to uphold this code. Please report unacceptable behavior to [project email].
+We follow the Contributor Covenant. By participating, you are expected to uphold this code. Please report unacceptable behavior.
 
-## How Can I Contribute?
+</td>
+<td width="50%">
 
-### Reporting Bugs
+### 📝 License
+[![MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-[![Bug Report](https://img.shields.io/badge/Bug-Report-red.svg)](https://github.com/Nanaimo2013/NansOS/issues/new?template=bug_report.md)
+By contributing, you agree that your contributions will be licensed under the MIT License.
 
-Before creating bug reports, please check the issue list as you might find out that you don't need to create one. When you are creating a bug report, please include as many details as possible:
+</td>
+</tr>
+</table>
 
-* Use a clear and descriptive title
-* Describe the exact steps which reproduce the problem
-* Provide specific examples to demonstrate the steps
-* Describe the behavior you observed after following the steps
-* Explain which behavior you expected to see instead and why
-* Include screenshots and animated GIFs if possible
-* Include your environment details (OS, tools versions)
+## 🚀 How Can I Contribute?
 
-### Suggesting Enhancements
+<table>
+<tr>
+<td width="33%">
 
-[![Feature Request](https://img.shields.io/badge/Feature-Request-green.svg)](https://github.com/Nanaimo2013/NansOS/issues/new?template=feature_request.md)
+### 🐛 Bug Reports
+[![Bugs](https://img.shields.io/badge/Bugs-Report-red.svg)](https://github.com/Nanaimo2013/NansOS/issues/new?template=bug_report.md)
 
-Enhancement suggestions are tracked as GitHub issues. When creating an enhancement suggestion, please include:
+Report bugs to help us improve:
+- Clear title and description
+- Steps to reproduce
+- Expected vs actual behavior
+- Screenshots if applicable
+- System information
 
-* A clear and descriptive title
-* A detailed description of the proposed functionality
-* Any possible drawbacks or considerations
-* If possible, a rough implementation approach
+</td>
+<td width="33%">
 
-### Pull Requests
+### 💡 Feature Requests
+[![Features](https://img.shields.io/badge/Features-Request-green.svg)](https://github.com/Nanaimo2013/NansOS/issues/new?template=feature_request.md)
 
-[![PRs](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/Nanaimo2013/NansOS/pulls)
+Suggest new features:
+- Clear description
+- Use case explanation
+- Implementation ideas
+- Potential impacts
+- Related features
 
-1. Fork the repo and create your branch from `master`
-2. If you've added code that should be tested, add tests
-3. If you've changed APIs, update the documentation
-4. Ensure the test suite passes
-5. Make sure your code follows the existing style
-6. Issue that pull request!
+</td>
+<td width="33%">
 
-## Development Process
+### 🔄 Pull Requests
+[![PRs](https://img.shields.io/badge/PRs-Welcome-brightgreen.svg)](https://github.com/Nanaimo2013/NansOS/pulls)
 
-[![Build Status](https://img.shields.io/github/workflow/status/Nanaimo2013/NansOS/build)](https://github.com/Nanaimo2013/NansOS/actions)
+Submit code changes:
+- Fork the repo
+- Create feature branch
+- Add/update tests
+- Update documentation
+- Submit PR
 
-1. **Setup Development Environment**
-   ```powershell
-   # Clone repository
-   git clone https://github.com/Nanaimo2013/NansOS.git
-   cd NansOS
-   
-   # Install dependencies
-   # (See docs/building.md for detailed instructions)
-   ```
+</td>
+</tr>
+</table>
 
-2. **Create Feature Branch**
-   ```bash
-   git checkout -b feature/your-feature-name
-   ```
+## 🛠️ Development Process
 
-3. **Make Changes**
-   - Write your code
-   - Follow coding standards
-   - Add/update tests
-   - Update documentation
+<table>
+<tr>
+<td width="50%">
 
-4. **Test Your Changes**
-   ```powershell
-   # Build and test
-   .\build.ps1
-   .\run.bat
-   ```
+### 🔧 Setup Environment
+[![Setup](https://img.shields.io/badge/Setup-Development-blue.svg)](https://github.com/Nanaimo2013/NansOS)
 
-5. **Commit Your Changes**
-   ```bash
-   git add .
-   git commit -m "feat: add your feature description"
-   ```
+```powershell
+# Clone repository
+git clone https://github.com/Nanaimo2013/NansOS.git
+cd NansOS
 
-6. **Submit Pull Request**
-   - Push to your fork
-   - Submit a pull request
-   - Wait for review
+# Install dependencies
+# See docs/building.md
+```
 
-## Coding Standards
+</td>
+<td width="50%">
 
-### Assembly Style Guide
+### 🌿 Branch Workflow
+[![Git](https://img.shields.io/badge/Git-Workflow-orange.svg)](https://github.com/Nanaimo2013/NansOS)
+
+```bash
+# Create feature branch
+git checkout -b feature/your-feature
+
+# Make changes
+git add .
+git commit -m "feat: description"
+
+# Submit PR
+git push origin feature/your-feature
+```
+
+</td>
+</tr>
+</table>
+
+## 📋 Coding Standards
+
+<table>
+<tr>
+<td width="50%">
+
+### 🔍 Assembly Style Guide
+[![Style](https://img.shields.io/badge/Style-Assembly-blue.svg)](https://github.com/Nanaimo2013/NansOS)
+
 ```nasm
 ; File header with description
 [BITS 64]
@@ -130,7 +157,12 @@ my_function:
     ret
 ```
 
-### Commit Message Format
+</td>
+<td width="50%">
+
+### 📝 Commit Message Format
+[![Commits](https://img.shields.io/badge/Commits-Conventional-green.svg)](https://github.com/Nanaimo2013/NansOS)
+
 ```
 type(scope): description
 
@@ -148,38 +180,54 @@ Types:
 - test: Adding tests
 - chore: Maintenance
 
-### Documentation
+</td>
+</tr>
+</table>
 
-[![Documentation](https://img.shields.io/badge/docs-latest-brightgreen.svg)](docs/architecture.md)
+## 📚 Documentation
 
-1. **Code Comments**
-   - Explain complex algorithms
-   - Document assumptions
-   - Clarify non-obvious code
+<table>
+<tr>
+<td width="50%">
 
-2. **Function Headers**
-   ```nasm
-   ; Function: process_input
-   ; Description: Processes keyboard input
-   ; Parameters:
-   ;   - AL: Scancode
-   ; Returns:
-   ;   - RAX: Processed character
-   ```
+### 💭 Code Comments
+[![Comments](https://img.shields.io/badge/Comments-Required-blue.svg)](https://github.com/Nanaimo2013/NansOS)
 
-3. **File Headers**
-   ```nasm
-   ; NansOS Keyboard Driver
-   ; Handles PS/2 keyboard input
-   ; Author: Your Name
-   ; Date: YYYY-MM-DD
-   ```
+```nasm
+; Function: process_input
+; Description: Processes keyboard input
+; Parameters:
+;   - AL: Scancode
+; Returns:
+;   - RAX: Processed character
+```
 
-## Testing
+</td>
+<td width="50%">
 
-[![Tests](https://img.shields.io/badge/tests-passing-brightgreen.svg)](https://github.com/Nanaimo2013/NansOS/actions)
+### 📖 File Headers
+[![Headers](https://img.shields.io/badge/Headers-Required-blue.svg)](https://github.com/Nanaimo2013/NansOS)
 
-### Running Tests
+```nasm
+; NansOS Keyboard Driver
+; Handles PS/2 keyboard input
+; Author: Your Name
+; Date: YYYY-MM-DD
+```
+
+</td>
+</tr>
+</table>
+
+## 🧪 Testing
+
+<table>
+<tr>
+<td width="50%">
+
+### ▶️ Running Tests
+[![Tests](https://img.shields.io/badge/Tests-Required-red.svg)](https://github.com/Nanaimo2013/NansOS)
+
 ```powershell
 # Build and test
 .\build.ps1
@@ -189,21 +237,59 @@ Types:
 .\run.bat debug
 ```
 
-### Adding Tests
-1. Create test file in appropriate directory
-2. Follow test naming convention
-3. Update test documentation
-4. Verify test coverage
+</td>
+<td width="50%">
 
-## Questions?
+### ➕ Adding Tests
+[![Coverage](https://img.shields.io/badge/Coverage-Expanding-green.svg)](https://github.com/Nanaimo2013/NansOS)
 
-[![Discord](https://img.shields.io/badge/Discord-Join%20Chat-blue)](https://discord.gg/nanos)
-[![GitHub Discussions](https://img.shields.io/badge/Discussions-Join-brightgreen.svg)](https://github.com/Nanaimo2013/NansOS/discussions)
+1. Create test file
+2. Follow naming convention
+3. Update documentation
+4. Verify coverage
 
-Feel free to contact the project maintainers if you have any questions or need clarification.
+</td>
+</tr>
+</table>
 
-## License
+## ❓ Questions?
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+<table>
+<tr>
+<td width="50%">
 
-By contributing, you agree that your contributions will be licensed under the MIT License. 
+### 💬 Community
+[![Chat](https://img.shields.io/badge/Chat-Discord-7289DA.svg)](https://discord.gg/nanos)
+
+Join our Discord server for:
+- Quick questions
+- Community support
+- Development discussion
+- Feature requests
+
+</td>
+<td width="50%">
+
+### 📋 Issue Tracker
+[![Issues](https://img.shields.io/badge/Issues-GitHub-green.svg)](https://github.com/Nanaimo2013/NansOS/issues)
+
+Use GitHub Issues for:
+- Bug reports
+- Feature requests
+- Documentation issues
+- Project planning
+
+</td>
+</tr>
+</table>
+
+---
+
+<div align="center">
+
+**[🏠 Home](README.md)** •
+**[📖 Documentation](docs/architecture.md)** •
+**[🚀 Roadmap](docs/roadmap.md)** •
+**[💡 Issues](https://github.com/Nanaimo2013/NansOS/issues)**
+
+</div> 

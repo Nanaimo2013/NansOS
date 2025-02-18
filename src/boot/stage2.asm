@@ -2,175 +2,258 @@
 [ORG 0x7E00]        ; Stage 2 loaded at 0x7E00
 
 ; Constants
-KERNEL_LOAD_ADDR    equ 0x100000  ; Load kernel at 1MB
-STACK_ADDR          equ 0x90000
-KERNEL_SECTOR       equ 4         ; Kernel starts at sector 4
-KERNEL_SEGMENTS     equ 40        ; Load 40 sectors (20KB)
+KERNEL_LOAD_ADDR    equ 0x1000     ; Load kernel at 0x1000
+STACK_ADDR          equ 0x9000     ; Stack at 0x9000
+KERNEL_SECTOR       equ 4          ; Kernel starts at sector 4
+KERNEL_SEGMENTS     equ 40         ; Load 40 sectors (20KB)
 
 stage2_start:
     ; Set up segments
-    mov ax, cs
+    cli             ; Disable interrupts while setting up segments
+    mov ax, 0       ; We want segment 0
     mov ds, ax
     mov es, ax
     mov ss, ax
-    mov sp, 0x7C00
+    mov sp, STACK_ADDR
+    sti             ; Re-enable interrupts
 
     ; Save boot drive
     mov [bootDrive], dl
 
-    ; Print welcome message
-    mov si, msg_stage2
+    ; Clear screen
+    mov ax, 0x0003  ; Text mode 80x25
+    int 0x10
+
+    ; Print welcome banner
+    mov si, msg_banner
+    call print_string
+    mov si, msg_copyright
+    call print_string
+    mov si, msg_detect
     call print_string
 
-    ; Try to load kernel using INT 13h extensions
+    ; Detect available drives
+    call detect_drives
+    
+    ; Load kernel installer
+    mov si, msg_loading
+    call print_string
+    
+    ; Try INT 13h extensions first
     mov ah, 0x41
     mov bx, 0x55AA
     mov dl, [bootDrive]
     int 0x13
-    jc load_kernel_legacy    ; If extensions not supported, use legacy method
+    jc load_kernel_legacy
 
-    ; Load kernel using extensions
-    mov si, msg_loading
-    call print_string
-    
+    ; Load using extensions
     mov si, dap
     mov ah, 0x42
     mov dl, [bootDrive]
     int 0x13
-    jnc kernel_loaded       ; If successful, continue
-    
-    ; Fall back to legacy loading if extension load fails
+    jnc kernel_loaded
+
 load_kernel_legacy:
-    mov si, msg_legacy
-    call print_string
+    ; Reset disk system
+    mov ah, 0x00
+    mov dl, [bootDrive]
+    int 0x13
+    jc disk_error
     
-    ; Convert linear address to segment:offset
-    mov ax, KERNEL_LOAD_ADDR >> 4
+    ; Set up ES:BX for kernel load
+    mov ax, KERNEL_LOAD_ADDR
     mov es, ax
     xor bx, bx
     
     ; Load kernel sectors
     mov ah, 0x02
-    mov al, KERNEL_SEGMENTS  ; Number of sectors
-    mov ch, 0               ; Cylinder 0
-    mov cl, KERNEL_SECTOR   ; Start sector
-    mov dh, 0               ; Head 0
+    mov al, KERNEL_SEGMENTS
+    mov ch, 0
+    mov cl, KERNEL_SECTOR
+    mov dh, 0
     mov dl, [bootDrive]
     int 0x13
-    jc error
+    jc disk_error
 
 kernel_loaded:
     mov si, msg_ok
     call print_string
-    
-    ; Prepare for protected mode
-    cli                     ; Disable interrupts
-    
-    ; Enable A20 line
-    in al, 0x92
-    or al, 2
-    out 0x92, al
 
-    ; Load GDT
-    lgdt [gdt_descriptor]
+    ; Pass drive info to kernel
+    mov dl, [bootDrive]
+    mov dh, [driveCount]
     
-    mov si, msg_pmode
+    ; Jump to kernel installer
+    jmp KERNEL_LOAD_ADDR:0000
+
+; Detect available drives
+detect_drives:
+    pusha
+    mov byte [driveCount], 0
+    
+    ; Check for hard drives (80h-8Fh)
+    mov dl, 0x80
+.hdd_loop:
+    mov ah, 0x08        ; Get drive parameters
+    int 0x13
+    jc .next_drive
+    
+    ; Valid drive found
+    inc byte [driveCount]
+    push dx
+    
+    ; Print drive info
+    mov si, msg_drive
     call print_string
+    
+    pop dx
+    push dx
+    
+    ; Print drive number
+    mov al, dl
+    call print_hex_byte
+    
+    ; Get drive size
+    mov ah, 0x48
+    mov si, drive_params
+    int 0x13
+    jc .skip_size
+    
+    ; Print drive size
+    mov si, msg_size
+    call print_string
+    mov eax, [drive_params + drive_params_t.sectors]
+    call print_dec
+    mov si, msg_mb
+    call print_string
+    
+.skip_size:
+    pop dx
+    
+.next_drive:
+    inc dl
+    cmp dl, 0x8F
+    jbe .hdd_loop
+    
+    popa
+    ret
 
-    ; Switch to protected mode
-    mov eax, cr0
-    or eax, 1
-    mov cr0, eax
+; Print functions
+print_string:
+    pusha
+    mov ah, 0x0E
+    mov bh, 0
+    mov bl, 0x0A
+.loop:
+    lodsb
+    test al, al
+    jz .done
+    int 0x10
+    jmp .loop
+.done:
+    mov al, 13
+    int 0x10
+    mov al, 10
+    int 0x10
+    popa
+    ret
 
-    ; Flush CPU pipeline with far jump
-    jmp dword 0x08:.protected_mode_start
+print_hex_byte:
+    pusha
+    mov cl, 4
+    shr al, cl
+    call .print_digit
+    pop ax
+    and al, 0x0F
+    call .print_digit
+    popa
+    ret
+.print_digit:
+    add al, '0'
+    cmp al, '9'
+    jbe .print
+    add al, 7
+.print:
+    mov ah, 0x0E
+    int 0x10
+    ret
 
-[BITS 32]
-.protected_mode_start:
-    ; Set up segment registers for protected mode
-    mov ax, 0x10           ; Data segment selector
-    mov ds, ax
-    mov es, ax
-    mov fs, ax
-    mov gs, ax
-    mov ss, ax
-    mov esp, STACK_ADDR    ; Set up new stack
+print_dec:
+    pusha
+    mov ecx, 10
+    mov ebx, 0
+.div_loop:
+    xor edx, edx
+    div ecx
+    push edx
+    inc ebx
+    test eax, eax
+    jnz .div_loop
+.print_loop:
+    pop eax
+    add al, '0'
+    mov ah, 0x0E
+    int 0x10
+    dec ebx
+    jnz .print_loop
+    popa
+    ret
 
-    ; Clear screen to indicate successful mode switch
-    mov edi, 0xB8000
-    mov ecx, 2000
-    mov ax, 0x0720
-    rep stosw
-
-    ; Jump to kernel
-    jmp dword 0x08:KERNEL_LOAD_ADDR
+disk_error:
+    mov si, msg_disk_error
+    call print_string
+    jmp error
 
 error:
     mov si, msg_error
     call print_string
     jmp $
 
-; Print string (SI = string pointer)
-print_string:
-    mov ah, 0x0E
-    mov bh, 0
-    mov bl, 0x0A    ; Light green
-.loop:
-    lodsb           ; Load next character
-    test al, al     ; Check for null terminator
-    jz .done
-    int 0x10        ; Print character
-    jmp .loop
-.done:
-    mov al, 13      ; Carriage return
-    int 0x10
-    mov al, 10      ; Line feed
-    int 0x10
-    ret
-
 ; Data
 bootDrive:      db 0
+driveCount:     db 0
 
-; Disk Address Packet for extended loading
+; Drive Parameters Buffer
+struc drive_params_t
+    .size:      resw 1
+    .flags:     resw 1
+    .cylinders: resd 1
+    .heads:     resd 1
+    .sectors:   resd 1
+    .total:     resq 1
+    .bytes:     resw 1
+endstruc
+
+drive_params:
+    istruc drive_params_t
+        at drive_params_t.size,       dw 30
+        at drive_params_t.flags,      dw 0
+        at drive_params_t.cylinders,  dd 0
+        at drive_params_t.heads,      dd 0
+        at drive_params_t.sectors,    dd 0
+        at drive_params_t.total,      dq 0
+        at drive_params_t.bytes,      dw 512
+    iend
+
+; Disk Address Packet
 dap:
-    db 0x10      ; Size of packet
-    db 0         ; Reserved
-    dw KERNEL_SEGMENTS  ; Number of sectors
-    dw 0         ; Offset
-    dw KERNEL_LOAD_ADDR >> 4  ; Segment
-    dq KERNEL_SECTOR ; Starting LBA
+    db 0x10
+    db 0
+    dw KERNEL_SEGMENTS
+    dw 0
+    dw KERNEL_LOAD_ADDR
+    dq KERNEL_SECTOR
 
 ; Messages
-msg_stage2:     db 'NansOS Stage 2 Bootloader v1.0', 0
-msg_loading:    db 'Loading kernel using INT 13h extensions...', 0
-msg_legacy:     db 'Loading kernel using legacy BIOS calls...', 0
+msg_banner:     db '================================', 13, 10
+                db '    NansOS Installation Setup    ', 13, 10
+                db '================================', 0
+msg_copyright:  db 'Copyright (c) 2024 NanCo Industries', 0
+msg_detect:     db 'Detecting storage devices...', 0
+msg_drive:      db 'Found drive 0x', 0
+msg_size:       db ' Size: ', 0
+msg_mb:         db ' MB', 0
+msg_loading:    db 'Loading installation kernel...', 0
 msg_ok:         db '[OK]', 0
-msg_error:      db 'Error: System halted', 0
-msg_pmode:      db 'Entering protected mode...', 0
-
-; GDT
-align 8
-gdt_start:
-    ; Null descriptor
-    dq 0
-
-    ; Code segment descriptor
-    dw 0xFFFF    ; Limit (bits 0-15)
-    dw 0x0000    ; Base (bits 0-15)
-    db 0x00      ; Base (bits 16-23)
-    db 10011010b ; Access (present, ring 0, code segment, executable, direction 0, readable)
-    db 11001111b ; Granularity (4k pages, 32-bit pmode) + limit (bits 16-19)
-    db 0x00      ; Base (bits 24-31)
-
-    ; Data segment descriptor
-    dw 0xFFFF    ; Limit (bits 0-15)
-    dw 0x0000    ; Base (bits 0-15)
-    db 0x00      ; Base (bits 16-23)
-    db 10010010b ; Access (present, ring 0, data segment, executable, direction 0, writable)
-    db 11001111b ; Granularity (4k pages, 32-bit pmode) + limit (bits 16-19)
-    db 0x00      ; Base (bits 24-31)
-gdt_end:
-
-gdt_descriptor:
-    dw gdt_end - gdt_start - 1  ; GDT size
-    dd gdt_start                 ; GDT address
+msg_disk_error: db 'Disk read error!', 0
+msg_error:      db 'System halted', 0
