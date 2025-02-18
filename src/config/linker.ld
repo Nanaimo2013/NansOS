@@ -1,5 +1,5 @@
 /* Linker script for NansOS 32-bit */
-OUTPUT_FORMAT(pei-i386)
+OUTPUT_FORMAT(binary)
 ENTRY(_start)
 
 SECTIONS
@@ -18,8 +18,7 @@ SECTIONS
         . = ALIGN(4096);
     }
 
-    .rdata : {
-        *(.rdata)
+    .rodata : {
         *(.rodata)
         *(.rodata.*)
         . = ALIGN(4096);

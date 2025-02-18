@@ -14,7 +14,6 @@
 *.exe
 *.out
 *.app
-*.img
 
 # Debug files
 *.dSYM/
@@ -45,11 +44,13 @@ Thumbs.db
 *.log
 
 # Project specific
-nanos.img
-version.conf.bak
+/builds/nanos.img
+!/nanos.img
+/version.conf.bak
+!/version.conf
+!/*.sh
 
 # Dependencies
-/tools/
 /downloads/
 
 # Documentation generated files
