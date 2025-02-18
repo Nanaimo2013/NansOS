@@ -26,11 +26,10 @@ bpb_volume_label:   db 'NansOS v1.0'  ; Volume label (11 bytes)
 bpb_file_system:    db 'FAT12   '  ; File system type (8 bytes)
 
 ; Constants
-STAGE1_SECTOR   equ 1     ; Stage 1 starts at sector 1 (after MBR)
-STAGE2_SECTOR   equ 2     ; Stage 2 starts at sector 2
-KERNEL_SECTOR   equ 4     ; Kernel starts at sector 4
+STAGE2_LOAD_SEG    equ 0x07E0    ; Stage 2 load segment (0x7E00/16)
+STAGE2_LOAD_OFF    equ 0x0000    ; Stage 2 load offset
+STAGE2_SECTOR      equ 2         ; Stage 2 starts at sector 2
 
-; Boot sector entry point
 start:
     ; Initialize segments
     xor ax, ax
@@ -50,39 +49,77 @@ start:
     mov si, msg_welcome
     call print_string
 
+    ; Check for INT 13h extensions
+    mov ah, 0x41
+    mov bx, 0x55AA
+    mov dl, [bootDrive]
+    int 0x13
+    jc .no_extensions
+    
+    cmp bx, 0xAA55
+    jne .no_extensions
+    
+    ; Extensions supported
+    mov byte [use_extensions], 1
+    mov si, msg_ext_support
+    call print_string
+    jmp .load_stage2
+    
+.no_extensions:
+    mov si, msg_legacy
+    call print_string
+
+.load_stage2:
     ; Reset disk system
     mov ah, 0x00
     mov dl, [bootDrive]
     int 0x13
     jc error
 
-    ; Load stage 2 (2 sectors)
+    ; Load stage 2
     mov si, msg_stage2
     call print_string
     
-    ; Read stage 2 into memory
-    mov ah, 0x02        ; Read sectors
-    mov al, 0x02        ; Number of sectors to read
-    mov ch, 0x00        ; Cylinder 0
-    mov cl, STAGE2_SECTOR ; Sector number
-    mov dh, 0x00        ; Head 0
-    mov dl, [bootDrive] ; Drive number
-    mov bx, 0x7E00      ; Load to ES:BX (0x0000:0x7E00)
+    ; Check if using extensions
+    cmp byte [use_extensions], 1
+    je .load_ext
+    
+    ; Legacy loading
+    mov ax, STAGE2_LOAD_SEG  ; Set up ES:BX
+    mov es, ax
+    xor bx, bx
+    
+    mov ah, 0x02            ; Read sectors
+    mov al, 2               ; Number of sectors
+    mov ch, 0               ; Cylinder 0
+    mov cl, STAGE2_SECTOR   ; Sector number
+    mov dh, 0               ; Head 0
+    mov dl, [bootDrive]     ; Drive number
+    int 0x13
+    jc error
+    jmp .load_done
+    
+.load_ext:
+    ; Load using INT 13h extensions
+    mov si, dap
+    mov ah, 0x42
+    mov dl, [bootDrive]
     int 0x13
     jc error
 
+.load_done:
     ; Success message
     mov si, msg_ok
     call print_string
 
     ; Jump to stage 2
-    mov dl, [bootDrive]    ; Pass boot drive
-    jmp 0x0000:0x7E00     ; Far jump to stage 2
+    mov dl, [bootDrive]     ; Pass boot drive
+    jmp STAGE2_LOAD_SEG:STAGE2_LOAD_OFF
 
 error:
     mov si, msg_error
     call print_string
-    jmp $                  ; Infinite loop
+    jmp $                   ; Infinite loop
 
 ; Print string (SI = string pointer)
 print_string:
@@ -104,10 +141,24 @@ print_string:
 
 ; Data
 bootDrive:      db 0
+use_extensions: db 0        ; 0 = legacy mode, 1 = use extensions
+
+; Disk Address Packet
+dap:
+    db 0x10          ; Size of packet
+    db 0             ; Reserved
+    dw 2             ; Number of sectors
+    dw 0             ; Offset
+    dw STAGE2_LOAD_SEG ; Segment
+    dq STAGE2_SECTOR ; Starting LBA
+
+; Messages
 msg_welcome:    db 'NansOS Bootloader v1.0', 0
 msg_stage2:     db 'Loading stage 2...', 0
 msg_ok:         db '[OK]', 0
 msg_error:      db 'Error: System halted', 0
+msg_ext_support: db 'INT 13h extensions supported', 0
+msg_legacy:     db 'Using legacy BIOS calls', 0
 
 ; Boot sector padding
 times 510-($-$$) db 0  ; Fill remaining space with zeros

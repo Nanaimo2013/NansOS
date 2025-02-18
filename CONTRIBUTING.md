@@ -1,14 +1,28 @@
 # Contributing to NansOS
 
+<div align="center">
+
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/Nanaimo2013/NansOS/pulls)
+[![Contributors](https://img.shields.io/github/contributors/Nanaimo2013/NansOS)](https://github.com/Nanaimo2013/NansOS/graphs/contributors)
+[![Issues](https://img.shields.io/github/issues/Nanaimo2013/NansOS)](https://github.com/Nanaimo2013/NansOS/issues)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Discord](https://img.shields.io/badge/Discord-Join%20Chat-blue)](https://discord.gg/nanos)
+
+</div>
+
 First off, thank you for considering contributing to NansOS! It's people like you that make NansOS such a great tool.
 
 ## Code of Conduct
+
+[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md)
 
 This project and everyone participating in it is governed by the NansOS Code of Conduct. By participating, you are expected to uphold this code. Please report unacceptable behavior to [project email].
 
 ## How Can I Contribute?
 
 ### Reporting Bugs
+
+[![Bug Report](https://img.shields.io/badge/Bug-Report-red.svg)](https://github.com/Nanaimo2013/NansOS/issues/new?template=bug_report.md)
 
 Before creating bug reports, please check the issue list as you might find out that you don't need to create one. When you are creating a bug report, please include as many details as possible:
 
@@ -22,6 +36,8 @@ Before creating bug reports, please check the issue list as you might find out t
 
 ### Suggesting Enhancements
 
+[![Feature Request](https://img.shields.io/badge/Feature-Request-green.svg)](https://github.com/Nanaimo2013/NansOS/issues/new?template=feature_request.md)
+
 Enhancement suggestions are tracked as GitHub issues. When creating an enhancement suggestion, please include:
 
 * A clear and descriptive title
@@ -31,6 +47,8 @@ Enhancement suggestions are tracked as GitHub issues. When creating an enhanceme
 
 ### Pull Requests
 
+[![PRs](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/Nanaimo2013/NansOS/pulls)
+
 1. Fork the repo and create your branch from `master`
 2. If you've added code that should be tested, add tests
 3. If you've changed APIs, update the documentation
@@ -39,6 +57,8 @@ Enhancement suggestions are tracked as GitHub issues. When creating an enhanceme
 6. Issue that pull request!
 
 ## Development Process
+
+[![Build Status](https://img.shields.io/github/workflow/status/Nanaimo2013/NansOS/build)](https://github.com/Nanaimo2013/NansOS/actions)
 
 1. **Setup Development Environment**
    ```powershell
@@ -130,6 +150,8 @@ Types:
 
 ### Documentation
 
+[![Documentation](https://img.shields.io/badge/docs-latest-brightgreen.svg)](docs/architecture.md)
+
 1. **Code Comments**
    - Explain complex algorithms
    - Document assumptions
@@ -155,6 +177,8 @@ Types:
 
 ## Testing
 
+[![Tests](https://img.shields.io/badge/tests-passing-brightgreen.svg)](https://github.com/Nanaimo2013/NansOS/actions)
+
 ### Running Tests
 ```powershell
 # Build and test
@@ -173,8 +197,13 @@ Types:
 
 ## Questions?
 
+[![Discord](https://img.shields.io/badge/Discord-Join%20Chat-blue)](https://discord.gg/nanos)
+[![GitHub Discussions](https://img.shields.io/badge/Discussions-Join-brightgreen.svg)](https://github.com/Nanaimo2013/NansOS/discussions)
+
 Feel free to contact the project maintainers if you have any questions or need clarification.
 
 ## License
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 By contributing, you agree that your contributions will be licensed under the MIT License. 

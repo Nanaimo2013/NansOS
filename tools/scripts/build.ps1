@@ -313,16 +313,29 @@ Get-ChildItem "$GUI_DIR/*.asm" | ForEach-Object {
 Write-Host "Linking kernel..." -ForegroundColor Cyan
 $objFiles = Get-ChildItem "$BIN_DIR/*.o" | ForEach-Object { $_.FullName }
 
-# Link with correct flags for raw binary output
-ld -T "$CONFIG_DIR/linker.ld" `
-   --oformat binary `
-   -o "$BIN_DIR/kernel.bin" `
+Write-Host "  Creating PE file..." -ForegroundColor Cyan
+ld -m i386pe `
+   -T "$CONFIG_DIR/linker.ld" `
+   -nostdlib `
+   -o "$BIN_DIR/kernel.exe" `
    $objFiles
 
 if ($LASTEXITCODE -ne 0) {
     Write-Host "Kernel linking failed!" -ForegroundColor Red
     exit 1
 }
+
+# Convert to binary
+Write-Host "  Converting to binary..." -ForegroundColor Cyan
+objcopy -O binary -j .text -j .data -j .bss "$BIN_DIR/kernel.exe" "$BIN_DIR/kernel.bin"
+
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "Binary conversion failed!" -ForegroundColor Red
+    exit 1
+}
+
+# Clean up temporary file
+Remove-Item "$BIN_DIR/kernel.exe" -ErrorAction SilentlyContinue
 
 # Verify kernel binary
 if (!(Test-Path "$BIN_DIR/kernel.bin")) {
@@ -335,45 +348,34 @@ Write-Host "Kernel binary size: $kernelSize bytes" -ForegroundColor Green
 
 # Create disk image
 Write-Host "Creating disk image..." -ForegroundColor Cyan
-$diskSize = 1474560  # 1.44 MB (standard floppy size)
 
-# Create empty disk image
-$image = [byte[]]::new($diskSize)
+# Create empty disk image (1.44MB)
+$imageSize = 1474560
+$diskImage = [byte[]]::new($imageSize)
 
-# Create FAT12 boot sector
-$bootSector = [System.IO.File]::ReadAllBytes("$BIN_DIR/stage1.bin")
-[Array]::Copy($bootSector, 0, $image, 0, 512)
+# Copy stage 1 bootloader
+$stage1 = [System.IO.File]::ReadAllBytes("$BIN_DIR/stage1.bin")
+[Array]::Copy($stage1, 0, $diskImage, 0, $stage1.Length)
 
-# Create FAT tables (2 copies)
-$fatStart = 512  # First FAT starts after boot sector
-$fatSize = 9 * 512  # 9 sectors per FAT
+# Copy stage 2 bootloader (at sector 2)
+$stage2 = [System.IO.File]::ReadAllBytes("$BIN_DIR/stage2.bin")
+[Array]::Copy($stage2, 0, $diskImage, 512, [Math]::Min($stage2.Length, 1024))
 
-# Initialize FATs
-for ($i = 0; $i -lt 2; $i++) {
-    $fatOffset = $fatStart + ($i * $fatSize)
-    # First two FAT entries are reserved
-    $image[$fatOffset + 0] = 0xF0  # Media descriptor
-    $image[$fatOffset + 1] = 0xFF
-    $image[$fatOffset + 2] = 0xFF
-}
+# Copy kernel (at sector 4)
+$kernel = [System.IO.File]::ReadAllBytes("$BIN_DIR/kernel.bin")
+[Array]::Copy($kernel, 0, $diskImage, 2048, $kernel.Length)
 
-# Copy stage 2 (sectors 2-3)
-[Array]::Copy([System.IO.File]::ReadAllBytes("$BIN_DIR/stage2.bin"), 0, $image, 1024, 1024)
+# Write disk image
+[System.IO.File]::WriteAllBytes("$BUILD_DIR/nanos.img", $diskImage)
 
-# Copy kernel (sectors 4+)
-[Array]::Copy([System.IO.File]::ReadAllBytes("$BIN_DIR/kernel.bin"), 0, $image, 2048, [System.IO.File]::ReadAllBytes("$BIN_DIR/kernel.bin").Length)
+$imageSize = (Get-Item "$BUILD_DIR/nanos.img").Length
+Write-Host "Disk image created successfully: $imageSize bytes" -ForegroundColor Green
 
-# Write complete image
-[System.IO.File]::WriteAllBytes("$BUILD_DIR/nanos.img", $image)
-Write-Host "Disk image created successfully: $((Get-Item "$BUILD_DIR/nanos.img").Length) bytes" -ForegroundColor Green
-
-# Show layout
+# Display disk layout
 Write-Host "Disk layout:" -ForegroundColor Cyan
-Write-Host "  Boot sector:  Stage 1 + BPB (512 bytes)" -ForegroundColor Green
-Write-Host "  FAT1:         Sectors 1-9" -ForegroundColor Green
-Write-Host "  FAT2:         Sectors 10-18" -ForegroundColor Green
-Write-Host "  Stage 2:      Sectors 2-3 (1024 bytes)" -ForegroundColor Green
-Write-Host "  Kernel:       Sectors 4+ ($($kernel.Length) bytes)" -ForegroundColor Green
+Write-Host "  Boot sector:  Stage 1 + BPB (512 bytes)"
+Write-Host "  Stage 2:      Sectors 2-3 (1024 bytes)"
+Write-Host "  Kernel:       Sectors 4+ ($($kernel.Length) bytes)"
 
 # Create version directory
 Write-Host "Creating build directory..." -ForegroundColor Cyan

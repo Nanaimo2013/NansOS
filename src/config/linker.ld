@@ -1,27 +1,28 @@
 /* Linker script for NansOS kernel */
-OUTPUT_FORMAT(binary)
 ENTRY(_start)
+OUTPUT_FORMAT(pei-i386)
 
 SECTIONS
 {
     . = 0x1000;
 
     .text : {
+        *(.text.startup)
         *(.text)
         *(.text.*)
     }
 
-    .rodata ALIGN(16) : {
+    .rodata : {
         *(.rodata)
         *(.rodata.*)
     }
 
-    .data ALIGN(16) : {
+    .data : {
         *(.data)
         *(.data.*)
     }
 
-    .bss ALIGN(16) : {
+    .bss : {
         *(.bss)
         *(.bss.*)
         *(COMMON)
@@ -31,5 +32,12 @@ SECTIONS
         *(.note*)
         *(.comment*)
         *(.eh_frame*)
+        *(.note.gnu.build-id)
+        *(.gnu.hash)
+        *(.dynsym)
+        *(.dynstr)
+        *(.gnu.version*)
+        *(.rel*)
+        *(.plt*)
     }
-} 
+}

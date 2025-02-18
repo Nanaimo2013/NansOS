@@ -4,7 +4,7 @@
 ; Constants
 KERNEL_LOAD_ADDR    equ 0x1000
 STACK_ADDR          equ 0x90000
-KERNEL_SECTOR       equ 4     ; Kernel starts at sector 4 (after MBR, Stage1, Stage2)
+KERNEL_SECTOR       equ 4     ; Kernel starts at sector 4
 
 stage2_start:
     ; Set up segments
@@ -21,61 +21,79 @@ stage2_start:
     mov si, msg_stage2
     call print_string
 
-    ; Reset disk system
-    mov ah, 0x00
+    ; Try to load kernel using INT 13h extensions
+    mov ah, 0x41
+    mov bx, 0x55AA
+    mov dl, [bootDrive]
+    int 0x13
+    jc load_kernel_legacy    ; If extensions not supported, use legacy method
+
+    ; Load kernel using extensions
+    mov si, dap
+    mov ah, 0x42
+    mov dl, [bootDrive]
+    int 0x13
+    jnc enter_protected_mode ; If successful, enter protected mode
+    
+    ; Fall back to legacy loading if extension load fails
+load_kernel_legacy:
+    mov ax, KERNEL_LOAD_ADDR >> 4
+    mov es, ax
+    xor bx, bx
+    mov ah, 0x02
+    mov al, 40              ; Load 40 sectors (20KB)
+    mov ch, 0               ; Cylinder 0
+    mov cl, KERNEL_SECTOR   ; Start sector
+    mov dh, 0               ; Head 0
     mov dl, [bootDrive]
     int 0x13
     jc error
 
-    ; Load kernel
-    mov si, msg_kernel
-    call print_string
-    
-    ; Set up segment for kernel loading
-    mov ax, KERNEL_LOAD_ADDR >> 4
-    mov es, ax
-    xor bx, bx              ; ES:BX = KERNEL_LOAD_ADDR
-    
-    ; Read kernel (40 sectors = 20KB)
-    mov ah, 0x02            ; Read sectors
-    mov al, 40              ; Number of sectors
-    mov ch, 0               ; Cylinder 0
-    mov cl, KERNEL_SECTOR   ; Start sector
-    mov dh, 0               ; Head 0
-    mov dl, [bootDrive]     ; Drive number
-    int 0x13
-    jc error
-
-    mov si, msg_ok
-    call print_string
-
-    ; Calculate GDT address
-    mov ax, cs
-    mov bx, gdt_start
-    shl eax, 4
-    add eax, ebx
-    mov [gdt_descriptor + 2], eax
-
-    ; Enter protected mode
+enter_protected_mode:
     cli                     ; Disable interrupts
-    lgdt [gdt_descriptor]   ; Load GDT
-
+    
     ; Enable A20 line
     in al, 0x92
     or al, 2
     out 0x92, al
+
+    ; Load GDT
+    lgdt [gdt_descriptor]
 
     ; Switch to protected mode
     mov eax, cr0
     or eax, 1
     mov cr0, eax
 
-    ; Flush pipeline with far jump
+    ; Jump to 32-bit code
     jmp dword 0x08:protected_mode
+
+return_to_real_mode:
+    [BITS 32]
+    ; Load real mode segments
+    mov ax, 0x10
+    mov ds, ax
+    mov es, ax
+    mov fs, ax
+    mov gs, ax
+    mov ss, ax
+    
+    ; Disable protected mode
+    mov eax, cr0
+    and al, 0xFE
+    mov cr0, eax
+    
+    ; Far jump to real mode
+    jmp word 0x0000:real_mode_return
+
+error:
+    mov si, msg_error
+    call print_string
+    jmp $
 
 [BITS 32]
 protected_mode:
-    ; Set up segment registers
+    ; Set up protected mode segments
     mov ax, 0x10
     mov ds, ax
     mov es, ax
@@ -94,8 +112,20 @@ protected_mode:
     mov eax, KERNEL_LOAD_ADDR
     jmp eax
 
-error:
-    mov si, msg_error
+[BITS 16]
+real_mode_return:
+    ; Restore real mode segments
+    mov ax, 0x0000
+    mov ds, ax
+    mov es, ax
+    mov fs, ax
+    mov gs, ax
+    mov ss, ax
+    mov sp, 0x7C00
+    
+    sti                ; Enable interrupts
+    
+    mov si, msg_real_mode
     call print_string
     jmp $
 
@@ -119,10 +149,20 @@ print_string:
 
 ; Data
 bootDrive:      db 0
+
+; Disk Address Packet for extended loading
+dap:
+    db 0x10      ; Size of packet
+    db 0         ; Reserved
+    dw 40        ; Number of sectors
+    dw 0         ; Offset
+    dw KERNEL_LOAD_ADDR >> 4  ; Segment
+    dq KERNEL_SECTOR ; Starting LBA
+
+; Messages
 msg_stage2:     db 'Stage 2 loaded', 0
-msg_kernel:     db 'Loading kernel...', 0
-msg_ok:         db '[OK]', 0
 msg_error:      db 'Error: System halted', 0
+msg_real_mode:  db 'Returned to real mode', 0
 
 ; GDT
 align 8
@@ -149,4 +189,4 @@ gdt_end:
 
 gdt_descriptor:
     dw gdt_end - gdt_start - 1  ; GDT size
-    dd 0                        ; GDT address (filled at runtime) 
+    dd gdt_start                 ; GDT address
