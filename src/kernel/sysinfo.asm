@@ -1,13 +1,13 @@
-[BITS 64]
+[BITS 32]
 ; System Information for NansOS
 
 section .data
     cpu_vendor:      times 13 db 0
     cpu_brand:       times 49 db 0
-    memory_size:     dq 0
-    memory_free:     dq 0
-    disk_size:       dq 0
-    disk_free:       dq 0
+    memory_size:     dd 0
+    memory_free:     dd 0
+    disk_size:       dd 0
+    disk_free:       dd 0
     
     ; Info strings
     cpu_info_str:    db 'CPU: ', 0
@@ -27,8 +27,8 @@ extern print_string
 
 ; Initialize system information
 sysinfo_init:
-    push rbp
-    mov rbp, rsp
+    push ebp
+    mov ebp, esp
     
     ; Detect CPU
     call detect_cpu
@@ -39,38 +39,38 @@ sysinfo_init:
     ; Detect disk
     call detect_disk
     
-    mov rsp, rbp
-    pop rbp
+    mov esp, ebp
+    pop ebp
     ret
 
 ; Get CPU information string
 get_cpu_info:
-    push rbp
-    mov rbp, rsp
+    push ebp
+    mov ebp, esp
     
     ; Print CPU info string
-    mov rsi, cpu_info_str
+    mov esi, cpu_info_str
     call print_string
     
     ; Print CPU vendor
-    mov rsi, cpu_vendor
+    mov esi, cpu_vendor
     call print_string
     
-    mov rsp, rbp
-    pop rbp
+    mov esp, ebp
+    pop ebp
     ret
 
 ; Get memory information string
 get_memory_info:
-    push rbp
-    mov rbp, rsp
+    push ebp
+    mov ebp, esp
     
     ; Print memory info string
-    mov rsi, mem_info_str
+    mov esi, mem_info_str
     call print_string
     
     ; Print memory size
-    mov rax, [memory_size]
+    mov eax, [memory_size]
     call print_dec
     
     ; Print "MB"
@@ -79,21 +79,21 @@ get_memory_info:
     mov al, 'B'
     call print_char
     
-    mov rsp, rbp
-    pop rbp
+    mov esp, ebp
+    pop ebp
     ret
 
 ; Get disk information string
 get_disk_info:
-    push rbp
-    mov rbp, rsp
+    push ebp
+    mov ebp, esp
     
     ; Print disk info string
-    mov rsi, disk_info_str
+    mov esi, disk_info_str
     call print_string
     
     ; Print disk size
-    mov rax, [disk_size]
+    mov eax, [disk_size]
     call print_dec
     
     ; Print "MB"
@@ -102,17 +102,17 @@ get_disk_info:
     mov al, 'B'
     call print_char
     
-    mov rsp, rbp
-    pop rbp
+    mov esp, ebp
+    pop ebp
     ret
 
 ; Get time information string
 get_time_info:
-    push rbp
-    mov rbp, rsp
+    push ebp
+    mov ebp, esp
     
     ; Print time info string
-    mov rsi, time_info_str
+    mov esi, time_info_str
     call print_string
     
     ; Get system time
@@ -131,17 +131,17 @@ get_time_info:
     mov al, cl
     call print_hex_byte
     
-    mov rsp, rbp
-    pop rbp
+    mov esp, ebp
+    pop ebp
     ret
 
 ; Detect CPU information
 detect_cpu:
-    push rbp
-    mov rbp, rsp
+    push ebp
+    mov ebp, esp
     
     ; Get vendor string
-    xor rax, rax
+    xor eax, eax
     cpuid
     mov [cpu_vendor], ebx
     mov [cpu_vendor + 4], edx
@@ -149,21 +149,21 @@ detect_cpu:
     mov byte [cpu_vendor + 12], 0
     
     ; Get brand string
-    mov rax, 0x80000002
+    mov eax, 0x80000002
     cpuid
     mov [cpu_brand], eax
     mov [cpu_brand + 4], ebx
     mov [cpu_brand + 8], ecx
     mov [cpu_brand + 12], edx
     
-    mov rax, 0x80000003
+    mov eax, 0x80000003
     cpuid
     mov [cpu_brand + 16], eax
     mov [cpu_brand + 20], ebx
     mov [cpu_brand + 24], ecx
     mov [cpu_brand + 28], edx
     
-    mov rax, 0x80000004
+    mov eax, 0x80000004
     cpuid
     mov [cpu_brand + 32], eax
     mov [cpu_brand + 36], ebx
@@ -171,35 +171,35 @@ detect_cpu:
     mov [cpu_brand + 44], edx
     mov byte [cpu_brand + 48], 0
     
-    mov rsp, rbp
-    pop rbp
+    mov esp, ebp
+    pop ebp
     ret
 
 ; Detect memory size
 detect_memory:
-    push rbp
-    mov rbp, rsp
+    push ebp
+    mov ebp, esp
     
     ; Use int 0x15, eax = 0xE820 for memory detection
-    mov rax, 0xE820
-    xor rbx, rbx
-    mov rcx, 24
-    mov rdx, 0x534D4150  ; 'SMAP'
-    mov rdi, memory_size
+    mov eax, 0xE820
+    xor ebx, ebx
+    mov ecx, 24
+    mov edx, 0x534D4150  ; 'SMAP'
+    mov edi, memory_size
     int 0x15
     
     ; Store total memory size
-    mov rax, [rdi + 8]   ; Length of memory region
-    mov [memory_size], rax
+    mov eax, [edi + 8]   ; Length of memory region
+    mov [memory_size], eax
     
-    mov rsp, rbp
-    pop rbp
+    mov esp, ebp
+    pop ebp
     ret
 
 ; Detect disk size
 detect_disk:
-    push rbp
-    mov rbp, rsp
+    push ebp
+    mov ebp, esp
     
     ; Get disk parameters
     mov ah, 0x08
@@ -220,65 +220,65 @@ detect_disk:
     
     ; Convert to MB (divide by 2048 = sectors per MB)
     shr ax, 11
-    mov [disk_size], rax
+    mov [disk_size], eax
     jmp .done
     
 .error:
-    mov qword [disk_size], 0
+    mov dword [disk_size], 0
     
 .done:
-    mov rsp, rbp
-    pop rbp
+    mov esp, ebp
+    pop ebp
     ret
 
-; Print decimal number in RAX
+; Print decimal number in EAX
 print_dec:
-    push rbp
-    mov rbp, rsp
-    push rbx
-    push rcx
-    push rdx
+    push ebp
+    mov ebp, esp
+    push ebx
+    push ecx
+    push edx
     
-    mov rcx, 10
-    mov rbx, rsp        ; Use stack as buffer
+    mov ecx, 10
+    mov ebx, esp        ; Use stack as buffer
     
 .convert_loop:
-    xor rdx, rdx
-    div rcx             ; Divide by 10
+    xor edx, edx
+    div ecx             ; Divide by 10
     add dl, '0'         ; Convert to ASCII
-    dec rbx
-    mov [rbx], dl
-    test rax, rax
+    dec ebx
+    mov [ebx], dl
+    test eax, eax
     jnz .convert_loop
     
 .print_loop:
-    mov al, [rbx]
+    mov al, [ebx]
     call print_char
-    inc rbx
-    cmp rbx, rsp
+    inc ebx
+    cmp ebx, esp
     jb .print_loop
     
-    pop rdx
-    pop rcx
-    pop rbx
-    mov rsp, rbp
-    pop rbp
+    pop edx
+    pop ecx
+    pop ebx
+    mov esp, ebp
+    pop ebp
     ret
 
 ; Print hex byte in AL
 print_hex_byte:
-    push rbp
-    mov rbp, rsp
+    push ebp
+    mov ebp, esp
     
-    push rax
+    push eax
     shr al, 4
     call print_hex_digit
-    pop rax
+    pop eax
     and al, 0x0F
     call print_hex_digit
     
-    mov rsp, rbp
-    pop rbp
+    mov esp, ebp
+    pop ebp
     ret
 
 ; Print hex digit in AL (lower 4 bits)
