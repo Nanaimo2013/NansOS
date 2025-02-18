@@ -1,0 +1,69 @@
+# Build directories
+/bin/
+/builds/
+
+# Object files
+*.o
+*.obj
+*.ko
+*.elf
+
+# Binaries
+*.bin
+*.sys
+*.exe
+*.out
+*.app
+*.img
+
+# Debug files
+*.dSYM/
+*.su
+*.idb
+*.pdb
+nul
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.bak
+*.log
+
+# Project specific
+nanos.img
+version.conf.bak
+
+# Dependencies
+/tools/
+/downloads/
+
+# Documentation generated files
+/docs/build/
+/docs/html/
+/docs/latex/
+
+# Test files
+/test/tmp/
+/test/results/
+
+# IDE specific files
+*.layout
+*.depend
+*.workspace
+*.project
+*.cproject 
