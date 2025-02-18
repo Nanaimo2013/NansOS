@@ -313,9 +313,8 @@ Get-ChildItem "$GUI_DIR/*.asm" | ForEach-Object {
 Write-Host "Linking kernel..." -ForegroundColor Cyan
 $objFiles = Get-ChildItem "$BIN_DIR/*.o" | ForEach-Object { $_.FullName }
 
-# Link with 32-bit flags for Windows
-ld -m i386pe `
-   -T "$CONFIG_DIR/linker.ld" `
+# Link with correct flags for raw binary output
+ld -T "$CONFIG_DIR/linker.ld" `
    --oformat binary `
    -o "$BIN_DIR/kernel.bin" `
    $objFiles
@@ -341,21 +340,53 @@ $diskSize = 10485760  # 10 MB
 # Create empty disk image
 $image = [byte[]]::new($diskSize)
 
+# Create MBR partition table
+$mbr = [byte[]]::new(512)
+
+# Boot signature
+$mbr[510] = 0x55
+$mbr[511] = 0xAA
+
+# Partition entry (starting at offset 446)
+$partitionEntry = 446
+$mbr[$partitionEntry + 0] = 0x80  # Active partition
+$mbr[$partitionEntry + 1] = 0x00  # Start head
+$mbr[$partitionEntry + 2] = 0x01  # Start sector (bits 0-5), cylinder high bits (6-7)
+$mbr[$partitionEntry + 3] = 0x00  # Start cylinder low bits
+$mbr[$partitionEntry + 4] = 0x0C  # System ID (FAT32 LBA)
+$mbr[$partitionEntry + 5] = 0x00  # End head
+$mbr[$partitionEntry + 6] = 0x02  # End sector
+$mbr[$partitionEntry + 7] = 0x00  # End cylinder
+
+# Partition size (sectors)
+$totalSectors = $diskSize / 512
+$mbr[$partitionEntry + 8] = 1     # LBA start (sector 1)
+$mbr[$partitionEntry + 9] = 0
+$mbr[$partitionEntry + 10] = 0
+$mbr[$partitionEntry + 11] = 0
+$mbr[$partitionEntry + 12] = [byte]($totalSectors - 1) # Size in sectors
+$mbr[$partitionEntry + 13] = [byte](($totalSectors - 1) -shr 8)
+$mbr[$partitionEntry + 14] = [byte](($totalSectors - 1) -shr 16)
+$mbr[$partitionEntry + 15] = [byte](($totalSectors - 1) -shr 24)
+
 # Load bootloader stages and kernel
-Write-Host "Writing bootloader..." -ForegroundColor Cyan
+Write-Host "Writing bootloader and kernel..." -ForegroundColor Cyan
 try {
     $stage1 = [System.IO.File]::ReadAllBytes("$BIN_DIR/stage1.bin")
     $stage2 = [System.IO.File]::ReadAllBytes("$BIN_DIR/stage2.bin")
     $kernel = [System.IO.File]::ReadAllBytes("$BIN_DIR/kernel.bin")
 
-    # Copy stage 1 (sector 0)
-    [Array]::Copy($stage1, 0, $image, 0, $stage1.Length)
+    # Copy MBR (sector 0)
+    [Array]::Copy($mbr, 0, $image, 0, 512)
     
-    # Copy stage 2 (sectors 1-2)
-    [Array]::Copy($stage2, 0, $image, 512, $stage2.Length)
+    # Copy stage 1 (sector 1)
+    [Array]::Copy($stage1, 0, $image, 512, $stage1.Length)
     
-    # Copy kernel (sectors 3+)
-    [Array]::Copy($kernel, 0, $image, 1536, $kernel.Length)
+    # Copy stage 2 (sectors 2-3)
+    [Array]::Copy($stage2, 0, $image, 1024, $stage2.Length)
+    
+    # Copy kernel (sectors 4+)
+    [Array]::Copy($kernel, 0, $image, 2048, $kernel.Length)
 
     # Write complete image
     [System.IO.File]::WriteAllBytes("$BUILD_DIR/nanos.img", $image)
@@ -363,9 +394,10 @@ try {
     
     # Show layout
     Write-Host "Disk layout:" -ForegroundColor Cyan
-    Write-Host "  Sector 0:    Stage 1 ($stage1Size bytes)" -ForegroundColor Green
-    Write-Host "  Sectors 1-2: Stage 2 ($stage2Size bytes)" -ForegroundColor Green
-    Write-Host "  Sectors 3+:  Kernel ($($kernel.Length) bytes)" -ForegroundColor Green
+    Write-Host "  Sector 0:    MBR (512 bytes)" -ForegroundColor Green
+    Write-Host "  Sector 1:    Stage 1 ($stage1Size bytes)" -ForegroundColor Green
+    Write-Host "  Sectors 2-3: Stage 2 ($stage2Size bytes)" -ForegroundColor Green
+    Write-Host "  Sectors 4+:  Kernel ($($kernel.Length) bytes)" -ForegroundColor Green
 }
 catch {
     Write-Host "Error creating disk image: $_" -ForegroundColor Red
