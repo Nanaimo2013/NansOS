@@ -1,6 +1,30 @@
 [BITS 16]           ; 16-bit Real Mode
 [ORG 0x7C00]        ; BIOS loads bootloader at 0x7C00
 
+jmp short start     ; Jump over BPB
+nop                 ; Pad to 3 bytes for BPB
+
+; BIOS Parameter Block
+bpb_oem:            db 'NANSOS10'  ; OEM identifier (8 bytes)
+bpb_bytes_sector:   dw 512        ; Bytes per sector
+bpb_sec_cluster:    db 1          ; Sectors per cluster
+bpb_reserved_sec:   dw 1          ; Reserved sectors
+bpb_num_fats:       db 2          ; Number of FATs
+bpb_root_entries:   dw 224        ; Root directory entries
+bpb_total_sectors:  dw 2880       ; Total sectors (2880 * 512 = 1.44MB)
+bpb_media:          db 0xF0       ; Media descriptor (0xF0 = 3.5" floppy)
+bpb_sectors_fat:    dw 9          ; Sectors per FAT
+bpb_sectors_track:  dw 18         ; Sectors per track
+bpb_heads:          dw 2          ; Number of heads
+bpb_hidden_sectors: dd 0          ; Hidden sectors
+bpb_large_sectors:  dd 0          ; Large sector count
+bpb_drive_num:      db 0x00       ; Drive number
+bpb_reserved:       db 0          ; Reserved
+bpb_signature:      db 0x29       ; Extended boot signature
+bpb_volume_id:      dd 0x12345678 ; Volume serial number
+bpb_volume_label:   db 'NansOS v1.0'  ; Volume label (11 bytes)
+bpb_file_system:    db 'FAT12   '  ; File system type (8 bytes)
+
 ; Constants
 STAGE1_SECTOR   equ 1     ; Stage 1 starts at sector 1 (after MBR)
 STAGE2_SECTOR   equ 2     ; Stage 2 starts at sector 2

@@ -335,74 +335,45 @@ Write-Host "Kernel binary size: $kernelSize bytes" -ForegroundColor Green
 
 # Create disk image
 Write-Host "Creating disk image..." -ForegroundColor Cyan
-$diskSize = 10485760  # 10 MB
+$diskSize = 1474560  # 1.44 MB (standard floppy size)
 
 # Create empty disk image
 $image = [byte[]]::new($diskSize)
 
-# Create MBR partition table
-$mbr = [byte[]]::new(512)
+# Create FAT12 boot sector
+$bootSector = [System.IO.File]::ReadAllBytes("$BIN_DIR/stage1.bin")
+[Array]::Copy($bootSector, 0, $image, 0, 512)
 
-# Boot signature
-$mbr[510] = 0x55
-$mbr[511] = 0xAA
+# Create FAT tables (2 copies)
+$fatStart = 512  # First FAT starts after boot sector
+$fatSize = 9 * 512  # 9 sectors per FAT
 
-# Partition entry (starting at offset 446)
-$partitionEntry = 446
-$mbr[$partitionEntry + 0] = 0x80  # Active partition
-$mbr[$partitionEntry + 1] = 0x00  # Start head
-$mbr[$partitionEntry + 2] = 0x01  # Start sector (bits 0-5), cylinder high bits (6-7)
-$mbr[$partitionEntry + 3] = 0x00  # Start cylinder low bits
-$mbr[$partitionEntry + 4] = 0x0C  # System ID (FAT32 LBA)
-$mbr[$partitionEntry + 5] = 0x00  # End head
-$mbr[$partitionEntry + 6] = 0x02  # End sector
-$mbr[$partitionEntry + 7] = 0x00  # End cylinder
-
-# Partition size (sectors)
-$totalSectors = $diskSize / 512
-$mbr[$partitionEntry + 8] = 1     # LBA start (sector 1)
-$mbr[$partitionEntry + 9] = 0
-$mbr[$partitionEntry + 10] = 0
-$mbr[$partitionEntry + 11] = 0
-$mbr[$partitionEntry + 12] = [byte]($totalSectors - 1) # Size in sectors
-$mbr[$partitionEntry + 13] = [byte](($totalSectors - 1) -shr 8)
-$mbr[$partitionEntry + 14] = [byte](($totalSectors - 1) -shr 16)
-$mbr[$partitionEntry + 15] = [byte](($totalSectors - 1) -shr 24)
-
-# Load bootloader stages and kernel
-Write-Host "Writing bootloader and kernel..." -ForegroundColor Cyan
-try {
-    $stage1 = [System.IO.File]::ReadAllBytes("$BIN_DIR/stage1.bin")
-    $stage2 = [System.IO.File]::ReadAllBytes("$BIN_DIR/stage2.bin")
-    $kernel = [System.IO.File]::ReadAllBytes("$BIN_DIR/kernel.bin")
-
-    # Copy MBR (sector 0)
-    [Array]::Copy($mbr, 0, $image, 0, 512)
-    
-    # Copy stage 1 (sector 1)
-    [Array]::Copy($stage1, 0, $image, 512, $stage1.Length)
-    
-    # Copy stage 2 (sectors 2-3)
-    [Array]::Copy($stage2, 0, $image, 1024, $stage2.Length)
-    
-    # Copy kernel (sectors 4+)
-    [Array]::Copy($kernel, 0, $image, 2048, $kernel.Length)
-
-    # Write complete image
-    [System.IO.File]::WriteAllBytes("$BUILD_DIR/nanos.img", $image)
-    Write-Host "Disk image created successfully: $((Get-Item "$BUILD_DIR/nanos.img").Length) bytes" -ForegroundColor Green
-    
-    # Show layout
-    Write-Host "Disk layout:" -ForegroundColor Cyan
-    Write-Host "  Sector 0:    MBR (512 bytes)" -ForegroundColor Green
-    Write-Host "  Sector 1:    Stage 1 ($stage1Size bytes)" -ForegroundColor Green
-    Write-Host "  Sectors 2-3: Stage 2 ($stage2Size bytes)" -ForegroundColor Green
-    Write-Host "  Sectors 4+:  Kernel ($($kernel.Length) bytes)" -ForegroundColor Green
+# Initialize FATs
+for ($i = 0; $i -lt 2; $i++) {
+    $fatOffset = $fatStart + ($i * $fatSize)
+    # First two FAT entries are reserved
+    $image[$fatOffset + 0] = 0xF0  # Media descriptor
+    $image[$fatOffset + 1] = 0xFF
+    $image[$fatOffset + 2] = 0xFF
 }
-catch {
-    Write-Host "Error creating disk image: $_" -ForegroundColor Red
-    exit 1
-}
+
+# Copy stage 2 (sectors 2-3)
+[Array]::Copy([System.IO.File]::ReadAllBytes("$BIN_DIR/stage2.bin"), 0, $image, 1024, 1024)
+
+# Copy kernel (sectors 4+)
+[Array]::Copy([System.IO.File]::ReadAllBytes("$BIN_DIR/kernel.bin"), 0, $image, 2048, [System.IO.File]::ReadAllBytes("$BIN_DIR/kernel.bin").Length)
+
+# Write complete image
+[System.IO.File]::WriteAllBytes("$BUILD_DIR/nanos.img", $image)
+Write-Host "Disk image created successfully: $((Get-Item "$BUILD_DIR/nanos.img").Length) bytes" -ForegroundColor Green
+
+# Show layout
+Write-Host "Disk layout:" -ForegroundColor Cyan
+Write-Host "  Boot sector:  Stage 1 + BPB (512 bytes)" -ForegroundColor Green
+Write-Host "  FAT1:         Sectors 1-9" -ForegroundColor Green
+Write-Host "  FAT2:         Sectors 10-18" -ForegroundColor Green
+Write-Host "  Stage 2:      Sectors 2-3 (1024 bytes)" -ForegroundColor Green
+Write-Host "  Kernel:       Sectors 4+ ($($kernel.Length) bytes)" -ForegroundColor Green
 
 # Create version directory
 Write-Host "Creating build directory..." -ForegroundColor Cyan

@@ -1,4 +1,4 @@
-/* Linker script for NansOS 32-bit */
+/* Linker script for NansOS kernel */
 OUTPUT_FORMAT(binary)
 ENTRY(_start)
 
@@ -9,31 +9,27 @@ SECTIONS
     .text : {
         *(.text)
         *(.text.*)
-        . = ALIGN(4096);
     }
 
-    .data : {
-        *(.data)
-        *(.data.*)
-        . = ALIGN(4096);
-    }
-
-    .rodata : {
+    .rodata ALIGN(16) : {
         *(.rodata)
         *(.rodata.*)
-        . = ALIGN(4096);
     }
 
-    .bss : {
+    .data ALIGN(16) : {
+        *(.data)
+        *(.data.*)
+    }
+
+    .bss ALIGN(16) : {
         *(.bss)
         *(.bss.*)
         *(COMMON)
-        . = ALIGN(4096);
     }
 
     /DISCARD/ : {
-        *(.comment)
-        *(.eh_frame)
-        *(.note.gnu.build-id)
+        *(.note*)
+        *(.comment*)
+        *(.eh_frame*)
     }
 } 
