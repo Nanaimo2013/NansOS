@@ -2,7 +2,7 @@
 [ORG 0x7C00]        ; BIOS loads bootloader at 0x7C00
 
 ; Constants
-STAGE1_SECTOR   equ 1     ; Stage 1 starts at sector 1
+STAGE1_SECTOR   equ 1     ; Stage 1 starts at sector 1 (after MBR)
 STAGE2_SECTOR   equ 2     ; Stage 2 starts at sector 2
 KERNEL_SECTOR   equ 4     ; Kernel starts at sector 4
 
@@ -32,66 +32,33 @@ start:
     int 0x13
     jc error
 
-    ; Load stage 1
-    mov si, msg_stage1
+    ; Load stage 2 (2 sectors)
+    mov si, msg_stage2
     call print_string
     
-    mov ax, 0x0201      ; Read 1 sector
-    mov cx, STAGE1_SECTOR ; Sector number
-    call read_sector
+    ; Read stage 2 into memory
+    mov ah, 0x02        ; Read sectors
+    mov al, 0x02        ; Number of sectors to read
+    mov ch, 0x00        ; Cylinder 0
+    mov cl, STAGE2_SECTOR ; Sector number
+    mov dh, 0x00        ; Head 0
+    mov dl, [bootDrive] ; Drive number
+    mov bx, 0x7E00      ; Load to ES:BX (0x0000:0x7E00)
+    int 0x13
     jc error
 
     ; Success message
     mov si, msg_ok
     call print_string
 
-    ; Jump to stage 1
+    ; Jump to stage 2
     mov dl, [bootDrive]    ; Pass boot drive
-    jmp 0x0000:0x7E00     ; Far jump to stage 1
+    jmp 0x0000:0x7E00     ; Far jump to stage 2
 
 error:
     mov si, msg_error
     call print_string
     jmp $                  ; Infinite loop
-
-; Read sector
-; AX = number of sectors to read
-; CX = starting sector number
-; Returns:
-; CF set on error
-read_sector:
-    push ax
-    push cx
-    push dx
-    
-    ; Convert LBA to CHS
-    ; Sector = (LBA % sectors per track) + 1
-    ; Head = (LBA / sectors per track) % number of heads
-    ; Cylinder = LBA / (sectors per track * number of heads)
-    
-    mov ax, cx          ; LBA in AX
-    mov cl, 18          ; Sectors per track
-    div cl             ; AL = LBA / SPT, AH = LBA % SPT
-    inc ah             ; Add 1 to sector
-    mov cl, ah         ; Sector number in CL
-    
-    mov ah, 0          ; Clear remainder
-    mov bl, 2          ; Number of heads
-    div bl             ; AL = Cylinder, AH = Head
-    
-    mov ch, al         ; Cylinder number in CH
-    mov dh, ah         ; Head number in DH
-    mov dl, [bootDrive] ; Drive number in DL
-    
-    ; Read sectors
-    mov ax, 0x0201     ; AH = 02 (read), AL = 01 (sectors)
-    mov bx, 0x7E00     ; Load to ES:BX
-    int 0x13
-    
-    pop dx
-    pop cx
-    pop ax
-    ret
 
 ; Print string (SI = string pointer)
 print_string:
@@ -114,7 +81,7 @@ print_string:
 ; Data
 bootDrive:      db 0
 msg_welcome:    db 'NansOS Bootloader v1.0', 0
-msg_stage1:     db 'Loading stage 1...', 0
+msg_stage2:     db 'Loading stage 2...', 0
 msg_ok:         db '[OK]', 0
 msg_error:      db 'Error: System halted', 0
 

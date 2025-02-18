@@ -4,7 +4,7 @@
 ; Constants
 KERNEL_LOAD_ADDR    equ 0x1000
 STACK_ADDR          equ 0x90000
-KERNEL_SECTOR       equ 4     ; Kernel starts at sector 4
+KERNEL_SECTOR       equ 4     ; Kernel starts at sector 4 (after MBR, Stage1, Stage2)
 
 stage2_start:
     ; Set up segments
@@ -31,14 +31,19 @@ stage2_start:
     mov si, msg_kernel
     call print_string
     
-    ; Read kernel sectors (20KB = 40 sectors)
-    mov ax, KERNEL_LOAD_ADDR >> 4  ; Convert to segment
+    ; Set up segment for kernel loading
+    mov ax, KERNEL_LOAD_ADDR >> 4
     mov es, ax
-    xor bx, bx                     ; Offset 0
+    xor bx, bx              ; ES:BX = KERNEL_LOAD_ADDR
     
-    mov ax, 0x0228                 ; Read 40 sectors
-    mov cx, KERNEL_SECTOR          ; Start from sector 4
-    call read_sectors
+    ; Read kernel (40 sectors = 20KB)
+    mov ah, 0x02            ; Read sectors
+    mov al, 40              ; Number of sectors
+    mov ch, 0               ; Cylinder 0
+    mov cl, KERNEL_SECTOR   ; Start sector
+    mov dh, 0               ; Head 0
+    mov dl, [bootDrive]     ; Drive number
+    int 0x13
     jc error
 
     mov si, msg_ok
@@ -67,43 +72,6 @@ stage2_start:
 
     ; Flush pipeline with far jump
     jmp dword 0x08:protected_mode
-
-; Read sectors using LBA
-; AX = number of sectors to read
-; CX = starting sector number
-; ES:BX = destination buffer
-; Returns:
-; CF set on error
-read_sectors:
-    push ax
-    push bx
-    push cx
-    push dx
-    
-    ; Convert LBA to CHS
-    mov ax, cx          ; LBA in AX
-    mov cl, 18          ; Sectors per track
-    div cl             ; AL = LBA / SPT, AH = LBA % SPT
-    inc ah             ; Add 1 to sector
-    mov cl, ah         ; Sector number in CL
-    
-    mov ah, 0          ; Clear remainder
-    mov bl, 2          ; Number of heads
-    div bl             ; AL = Cylinder, AH = Head
-    
-    mov ch, al         ; Cylinder number in CH
-    mov dh, ah         ; Head number in DH
-    mov dl, [bootDrive] ; Drive number in DL
-    
-    ; Read sectors
-    mov ax, 0x0228     ; AH = 02 (read), AL = 40 (sectors)
-    int 0x13
-    
-    pop dx
-    pop cx
-    pop bx
-    pop ax
-    ret
 
 [BITS 32]
 protected_mode:
