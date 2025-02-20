@@ -1,6 +1,8 @@
 # Build directories
 /bin/
 /builds/
+/tools/i386-elf-tools
+/tools/toolchain
 
 # Object files
 *.o
