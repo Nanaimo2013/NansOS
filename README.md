@@ -2,27 +2,20 @@
 
 <div align="center">
 
-<img src="docs/images/logo.png" alt="NansOS Logo" width="400px"/>
-
-### A RobCo-inspired 64-bit operating system with a retro-futuristic terminal interface
+### A 64-bit operating system developed by NansStudios
 
 <br/>
 
 [![License](https://img.shields.io/badge/LICENSE-MIT-green.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/VERSION-1.0.0-blue.svg?style=for-the-badge)](https://github.com/Nanaimo2013/NansOS/releases)
-[![Build](https://img.shields.io/badge/BUILD-passing-brightgreen.svg?style=for-the-badge)](https://github.com/Nanaimo2013/NansOS/actions)
+[![Version](https://img.shields.io/badge/VERSION-0.1.0-blue.svg?style=for-the-badge)](https://github.com/Nanaimo2013/NansOS/releases)
+[![Build](https://img.shields.io/badge/BUILD-in_progress-yellow.svg?style=for-the-badge)](https://github.com/Nanaimo2013/NansOS/actions)
+[![Docker](https://img.shields.io/badge/Docker-ghcr.io-blue.svg?style=for-the-badge)](https://github.com/Nanaimo2013/NansOS/pkgs/container/nansos)
 
 <br/>
 
 [📖 Documentation](docs/architecture.md) •
 [🚀 Getting Started](#-getting-started) •
-[💡 Features](#-features) •
-[📝 Contributing](CONTRIBUTING.md)
-
-<br/>
-
-<img src="docs/images/boot.png" width="400" alt="Boot Screen"/>
-<img src="docs/images/terminal.png" width="400" alt="Terminal Interface"/>
+[💡 Features](#-features)
 
 </div>
 
@@ -37,17 +30,16 @@
 ### 🖥️ System Architecture
 - 64-bit x86_64 support
 - Protected & Long mode
-- Modern memory management
-- Hardware abstraction layer
+- Basic memory management
+- Simple hardware abstraction
 
 </td>
 <td>
 
 ### 🎮 Hardware Support
-- PS/2 & USB input devices
-- VGA text & graphics modes
-- ATA/IDE disk operations
-- FAT12 filesystem support
+- Basic VGA text mode
+- Simple memory operations
+- Initial boot sequence
 
 </td>
 </tr>
@@ -56,18 +48,16 @@
 
 ### 🛠️ Development Tools
 - Cross-platform build system
-- Integrated debugging
 - QEMU testing support
-- Modular architecture
+- Basic debugging support
 
 </td>
 <td>
 
-### 🌟 RobCo Interface
-- Authentic terminal experience
-- Green-text display mode
-- Command-line interface
-- System monitoring tools
+### 🌟 Interface
+- Basic text output
+- Simple color support
+- Initial boot messages
 
 </td>
 </tr>
@@ -94,12 +84,10 @@ git clone https://github.com/Nanaimo2013/NansOS.git
 cd NansOS
 
 # Build OS
-.\build.ps1    # Windows
-./build.sh     # Linux
+make build-x86_64
 
 # Run in QEMU
-run.bat        # Windows
-./run.sh       # Linux
+qemu-system-x86_64 -cdrom dist/x86_64/kernel.iso
 ```
 
 ## 📦 Project Structure
@@ -107,28 +95,21 @@ run.bat        # Windows
 ```
 NansOS/
 ├── src/               # Source code
-│   ├── boot/         # Bootloader components
-│   ├── kernel/       # Core kernel modules
-│   ├── drivers/      # Hardware drivers
-│   └── gui/          # Interface components
-├── docs/             # Documentation
-├── tools/            # Development tools
-└── builds/           # Build artifacts
+│   ├── impl/         # Implementation
+│   │   ├── x86_64/   # Architecture-specific code
+│   │   └── kernel/   # Kernel code
+│   └── intf/         # Interfaces
+├── targets/          # Build targets
+└── buildenv/         # Build environment
 ```
 
 ## 📊 Project Status
 
 <div align="center">
 
-[![Release](https://img.shields.io/badge/RELEASE-v1.0.0-blue.svg?style=for-the-badge)](https://github.com/Nanaimo2013/NansOS/releases)
+[![Release](https://img.shields.io/badge/RELEASE-v0.1.0-blue.svg?style=for-the-badge)](https://github.com/Nanaimo2013/NansOS/releases)
 [![Issues](https://img.shields.io/github/issues/Nanaimo2013/NansOS?style=for-the-badge&color=red)](https://github.com/Nanaimo2013/NansOS/issues)
 [![PRs](https://img.shields.io/badge/PRs-welcome-yellow.svg?style=for-the-badge)](https://github.com/Nanaimo2013/NansOS/pulls)
-
-<br/>
-
-[![Contributors](https://img.shields.io/github/contributors/Nanaimo2013/NansOS?style=for-the-badge&color=orange)](https://github.com/Nanaimo2013/NansOS/graphs/contributors)
-[![Activity](https://img.shields.io/github/commit-activity/m/Nanaimo2013/NansOS?style=for-the-badge&color=blue)](https://github.com/Nanaimo2013/NansOS/commits/main)
-[![Size](https://img.shields.io/github/repo-size/Nanaimo2013/NansOS?style=for-the-badge&color=purple)](https://github.com/Nanaimo2013/NansOS)
 
 </div>
 
@@ -139,39 +120,42 @@ NansOS/
 - [📝 Changelog](CHANGELOG.md)
 - [🛣️ Project Roadmap](docs/roadmap.md)
 
-## 🤝 Contributing
-
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
-
-<div align="center">
-
-[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg?style=for-the-badge)](CODE_OF_CONDUCT.md)
-
-</div>
-
 ## 📄 License
 
 <div align="center">
 
 [![MIT License](https://img.shields.io/badge/LICENSE-MIT-green.svg?style=for-the-badge)](LICENSE)
 
-Copyright © 2024 NanCo Industries
+Copyright © 2025 NansStudios. All rights reserved.
 
 </div>
 
-## 🙏 Acknowledgments
+## 🐳 Docker Support
 
-- Inspired by RobCo terminals from Fallout
-- Built with support from the OSDev community
-- Special thanks to all contributors
+You can use our pre-built Docker image for development:
+
+```bash
+# Pull the latest image
+docker pull ghcr.io/nanaimo2013/nansos:latest
+
+# Run the container
+docker run --rm -it -v ${PWD}:/root/env ghcr.io/nanaimo2013/nansos:latest
+
+# Or build locally
+docker build buildenv -t nansos-buildenv
+docker run --rm -it -v ${PWD}:/root/env nansos-buildenv
+```
+
+The Docker image includes all necessary development tools and dependencies.
 
 ---
 
 <div align="center">
 
-**[Website](https://nanaimo2013.github.io/NansOS)** •
 **[Documentation](docs/architecture.md)** •
 **[Report Bug](https://github.com/Nanaimo2013/NansOS/issues)** •
 **[Request Feature](https://github.com/Nanaimo2013/NansOS/issues)**
+
+Made with ❤️ by NansStudios
 
 </div>

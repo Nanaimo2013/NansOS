@@ -1,4 +1,5 @@
 # Contributing to NansOS
+By NansStudios
 
 <div align="center">
 
@@ -11,7 +12,7 @@
 
 ## 🌟 Welcome!
 
-First off, thank you for considering contributing to NansOS! It's people like you that make NansOS such a great tool.
+First off, thank you for considering contributing to NansOS! It's people like you that help make NansOS better.
 
 <table>
 <tr>
@@ -209,9 +210,10 @@ Types:
 [![Headers](https://img.shields.io/badge/Headers-Required-blue.svg)](https://github.com/Nanaimo2013/NansOS)
 
 ```nasm
-; NansOS Keyboard Driver
-; Handles PS/2 keyboard input
+; NansOS Component Name
+; Brief description
 ; Author: Your Name
+; Copyright (c) 2025 NansStudios
 ; Date: YYYY-MM-DD
 ```
 
@@ -291,5 +293,7 @@ Use GitHub Issues for:
 **[📖 Documentation](docs/architecture.md)** •
 **[🚀 Roadmap](docs/roadmap.md)** •
 **[💡 Issues](https://github.com/Nanaimo2013/NansOS/issues)**
+
+Made with ❤️ by NansStudios
 
 </div> 

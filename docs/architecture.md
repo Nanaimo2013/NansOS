@@ -1,4 +1,5 @@
 # NansOS Architecture Overview
+By NansStudios
 
 <div align="center">
 
@@ -18,16 +19,16 @@
 ```
 +------------------+
 |    User Space    |
-|  Applications    |
+|    (Planned)     |
 +------------------+
-|   GUI System     |
-| Window Manager   |
+|   Basic Output   |
+|    VGA Text      |
 +------------------+
-|  System Services |
-| Device Drivers   |
+|  Basic Drivers   |
+|    Hardware      |
 +------------------+
 |     Kernel      |
-|  Memory, I/O    |
+|  Memory, Boot   |
 +------------------+
 |   Bootloader    |
 | Stage 1 & 2     |
@@ -39,17 +40,17 @@
 
 ### 🔑 Key Features
 - **64-bit Architecture**
-  - Long mode support
-  - Extended memory access
-  - Advanced paging
-- **RobCo-Style Interface**
-  - Terminal emulation
-  - Green-text display
-  - Command processing
+  - Protected mode
+  - Long mode transition
+  - Basic paging
+- **Basic Interface**
+  - VGA text mode
+  - Color support
+  - Simple output
 - **Hardware Support**
-  - PS/2 & USB devices
-  - ATA/IDE storage
-  - VGA display modes
+  - Basic memory management
+  - Simple hardware detection
+  - Error handling
 
 </td>
 </tr>
@@ -72,8 +73,8 @@
 
 ### Stage 2
 [![Size](https://img.shields.io/badge/Size-1KB-blue.svg)](https://github.com/Nanaimo2013/NansOS)
-- Hardware detection
-- Boot sequence
+- Hardware check
+- Mode preparation
 - Loads kernel
 
 </td>
@@ -81,8 +82,8 @@
 
 ### Protected Mode
 [![Mode](https://img.shields.io/badge/Mode-32bit-green.svg)](https://github.com/Nanaimo2013/NansOS)
-- A20 line enabled
-- GDT loaded
+- A20 line
+- GDT setup
 - Mode switch
 
 </td>
@@ -90,9 +91,9 @@
 
 ### Long Mode
 [![Mode](https://img.shields.io/badge/Mode-64bit-green.svg)](https://github.com/Nanaimo2013/NansOS)
-- Paging setup
-- PAE enabled
-- Final switch
+- Basic paging
+- PAE setup
+- Mode switch
 
 </td>
 </tr>
@@ -105,20 +106,20 @@
 0x00000000 - 0x000003FF: Real Mode IVT
 0x00000400 - 0x000004FF: BIOS Data Area
 0x00000500 - 0x00007BFF: Free Memory
-0x00007C00 - 0x00007DFF: Bootloader
-0x00007E00 - 0x0009FFFF: Free Memory
+0x00007C00 - 0x00007DFF: Bootloader Stage 1
+0x00007E00 - 0x00007FFF: Bootloader Stage 2
+0x00008000 - 0x0009FFFF: Free Memory
 0x000A0000 - 0x000BFFFF: Video Memory
 0x000C0000 - 0x000FFFFF: BIOS ROM
-0x00100000 - 0x00FFFFFF: Kernel Space
-0x01000000 - .........: User Space
+0x00100000 - .........: Kernel Space
 ```
 
 ### 📑 Paging Structure
 [![Paging](https://img.shields.io/badge/Paging-4--Level-blue.svg)](https://github.com/Nanaimo2013/NansOS)
-- 4-level paging hierarchy
-- 4KB standard pages
-- 2MB large pages supported
-- Page-level protection
+- Basic 4-level paging
+- 4KB pages
+- Identity mapping
+- Basic protection
 
 ## 🖥️ Hardware Support
 
@@ -126,160 +127,29 @@
 <tr>
 <td width="33%">
 
-### ⌨️ Input Devices
-[![Status](https://img.shields.io/badge/Status-Supported-green.svg)](https://github.com/Nanaimo2013/NansOS)
-- PS/2 Keyboard
-- PS/2 Mouse
-- USB HID (planned)
+### ⌨️ Input/Output
+[![Status](https://img.shields.io/badge/Status-Basic-yellow.svg)](https://github.com/Nanaimo2013/NansOS)
+- VGA text mode
+- Basic color support
+- Simple output
 
 </td>
 <td width="33%">
 
 ### 🖥️ Display
-[![Status](https://img.shields.io/badge/Status-Active-green.svg)](https://github.com/Nanaimo2013/NansOS)
-- VGA Text Mode
-- Graphics Mode
-- VESA Support
+[![Status](https://img.shields.io/badge/Status-Basic-yellow.svg)](https://github.com/Nanaimo2013/NansOS)
+- Text mode only
+- 80x25 display
+- Color attributes
 
 </td>
 <td width="33%">
 
 ### 💽 Storage
-[![Status](https://img.shields.io/badge/Status-Active-green.svg)](https://github.com/Nanaimo2013/NansOS)
-- ATA/IDE Drives
-- FAT12 Filesystem
-- USB Storage
-
-</td>
-</tr>
-</table>
-
-## 🖼️ GUI System
-
-<table>
-<tr>
-<td width="50%">
-
-### 🪟 Window Manager
-```
-+----------------+
-| Window Manager |
-+----------------+
-       |
-  +---------+
-  | Windows |
-  +---------+
-       |
-+------------------+
-| Terminal Emulator|
-+------------------+
-```
-
-</td>
-<td width="50%">
-
-### 💻 Terminal Interface
-[![Style](https://img.shields.io/badge/Style-RobCo-green.svg)](https://github.com/Nanaimo2013/NansOS)
-- Green-text display mode
-- Command-line interface
-- Multi-window support
-- Custom font rendering
-
-</td>
-</tr>
-</table>
-
-## 📂 File System
-
-<table>
-<tr>
-<td width="50%">
-
-### 💾 FAT12 Implementation
-[![Type](https://img.shields.io/badge/Type-FAT12-blue.svg)](https://github.com/Nanaimo2013/NansOS)
-- 512-byte sectors
-- 1.44MB floppy support
-- Basic file operations
-- Directory structure
-
-</td>
-<td width="50%">
-
-### 📁 Directory Layout
-```
-/
-├── bin/     # System binaries
-├── etc/     # Configuration
-├── dev/     # Device files
-└── usr/     # User files
-```
-
-</td>
-</tr>
-</table>
-
-## 🔌 Device Driver Architecture
-
-<table>
-<tr>
-<td width="60%">
-
-### 🔧 Driver Model
-```
-+------------------+
-|  Device Manager  |
-+------------------+
-         |
-+------------------+
-| Driver Interface |
-+------------------+
-         |
-+------------------+
-| Hardware Access  |
-+------------------+
-```
-
-</td>
-<td width="40%">
-
-### 📝 Driver Categories
-[![Status](https://img.shields.io/badge/Status-Active-green.svg)](https://github.com/Nanaimo2013/NansOS)
-1. Character Devices
-2. Block Devices
-3. Network Devices
-
-</td>
-</tr>
-</table>
-
-## 🔒 Security Model
-
-<table>
-<tr>
-<td width="33%">
-
-### 💍 Protection Rings
-[![Rings](https://img.shields.io/badge/Rings-4--Level-blue.svg)](https://github.com/Nanaimo2013/NansOS)
-- Ring 0: Kernel
-- Ring 3: User
-
-</td>
-<td width="33%">
-
-### 🛡️ Memory Protection
-[![Protection](https://img.shields.io/badge/Protection-Active-green.svg)](https://github.com/Nanaimo2013/NansOS)
-- Page-level protection
-- Segment isolation
-- Resource control
-
-</td>
-<td width="33%">
-
-### 🔐 Access Control
-[![Access](https://img.shields.io/badge/Access-Managed-green.svg)](https://github.com/Nanaimo2013/NansOS)
-- Process isolation
-- Resource limits
-- Permission system
+[![Status](https://img.shields.io/badge/Status-Minimal-red.svg)](https://github.com/Nanaimo2013/NansOS)
+- Basic disk read
+- No filesystem yet
+- Boot sector only
 
 </td>
 </tr>
@@ -292,28 +162,28 @@
 <td width="33%">
 
 ### 🏗️ Build System
-[![Build](https://img.shields.io/badge/Build-PowerShell-blue.svg)](https://github.com/Nanaimo2013/NansOS)
-- PowerShell scripts
+[![Build](https://img.shields.io/badge/Build-Basic-yellow.svg)](https://github.com/Nanaimo2013/NansOS)
+- Make-based build
 - NASM assembly
-- GNU toolchain
+- GCC toolchain
 
 </td>
 <td width="33%">
 
 ### 🐛 Debugging
-[![Debug](https://img.shields.io/badge/Debug-GDB-orange.svg)](https://github.com/Nanaimo2013/NansOS)
-- GDB support
+[![Debug](https://img.shields.io/badge/Debug-Basic-yellow.svg)](https://github.com/Nanaimo2013/NansOS)
 - QEMU debugging
-- Memory inspection
+- Basic GDB support
+- Error messages
 
 </td>
 <td width="33%">
 
 ### 📊 Testing
-[![Test](https://img.shields.io/badge/Test-Automated-green.svg)](https://github.com/Nanaimo2013/NansOS)
-- Unit testing
-- Integration tests
-- CI/CD pipeline
+[![Test](https://img.shields.io/badge/Test-Planned-red.svg)](https://github.com/Nanaimo2013/NansOS)
+- Manual testing
+- QEMU-based tests
+- Basic verification
 
 </td>
 </tr>
@@ -325,8 +195,9 @@
 
 **[🏠 Home](../README.md)** •
 **[📖 Documentation](building.md)** •
-**[🚀 Roadmap](roadmap.md)** •
-**[💡 Contributing](../CONTRIBUTING.md)**
+**[🚀 Roadmap](roadmap.md)**
+
+Made with ❤️ by NansStudios
 
 </div>
 

@@ -1,33 +1,54 @@
 # NansOS Development Roadmap
+By NansStudios
 
 <div align="center">
 
 [![Status](https://img.shields.io/badge/Status-In%20Development-blue.svg?style=for-the-badge)](https://github.com/Nanaimo2013/NansOS)
-[![Version](https://img.shields.io/badge/Version-1.0.0-green.svg?style=for-the-badge)](https://github.com/Nanaimo2013/NansOS/releases)
-[![Progress](https://img.shields.io/badge/Progress-20%25-orange.svg?style=for-the-badge)](https://github.com/Nanaimo2013/NansOS/milestones)
+[![Version](https://img.shields.io/badge/Version-0.1.0-green.svg?style=for-the-badge)](https://github.com/Nanaimo2013/NansOS/releases)
+[![Progress](https://img.shields.io/badge/Progress-15%25-orange.svg?style=for-the-badge)](https://github.com/Nanaimo2013/NansOS/milestones)
 
 </div>
 
-## 🚀 Current Status (v1.0.0)
+## 🚀 Current Status (v0.1.0)
 
 <table>
 <tr>
 <td>
 
 ### ✅ Completed
-- Basic 64-bit kernel implementation
-- RobCo-style terminal interface
-- Basic hardware support
-- Initial build system
+- [x] Bootloader Stage 1
+  - [x] MBR implementation
+  - [x] Basic error handling
+  - [x] Stage 2 loading
+- [x] Bootloader Stage 2
+  - [x] Protected mode switch
+  - [x] Long mode preparation
+  - [x] Kernel loading
+- [x] Basic VGA Output
+  - [x] Text mode initialization
+  - [x] Color support
+  - [x] Basic printing
+- [x] Build System
+  - [x] Cross-compilation setup
+  - [x] Make-based build
+  - [x] QEMU integration
 
 </td>
 <td>
 
 ### 🔄 In Progress
-- Memory management enhancements
-- File system implementation
-- GUI system improvements
-- Driver architecture
+- [ ] Memory Management
+  - [x] Basic paging setup
+  - [ ] Memory allocation
+  - [ ] Stack management
+- [ ] Hardware Interrupts
+  - [ ] IDT implementation
+  - [ ] Basic handlers
+  - [ ] Error management
+- [ ] Keyboard Support
+  - [ ] PS/2 initialization
+  - [ ] Scancode handling
+  - [ ] Basic input buffer
 
 </td>
 </tr>
@@ -35,64 +56,88 @@
 
 ## 📅 Development Timeline
 
-### 🎯 Milestone 1: Core System Enhancement (v1.1.0)
+### 🎯 Milestone 1: Core System (v0.2.0)
 [![Status](https://img.shields.io/badge/Status-In%20Progress-blue.svg)](https://github.com/Nanaimo2013/NansOS/milestone/1)
-#### Q2 2024
+#### Q2 2025
 - [ ] Memory Management
-  - [ ] Advanced paging support
-  - [ ] Memory allocation/deallocation
+  - [ ] Dynamic memory allocation
+  - [ ] Memory mapping
+  - [ ] Heap implementation
   - [ ] Memory protection
-- [ ] Process Management
-  - [ ] Basic process scheduling
-  - [ ] Task switching
-  - [ ] Process isolation
+- [ ] Interrupt System
+  - [ ] Complete IDT setup
+  - [ ] Hardware interrupt handlers
+  - [ ] Exception handling
+  - [ ] System calls foundation
+- [ ] CPU Features
+  - [ ] CPUID detection
+  - [ ] Feature flags handling
+  - [ ] SSE/AVX support
+  - [ ] CPU frequency detection
 
-### 🎯 Milestone 2: File System Implementation (v1.2.0)
+### 🎯 Milestone 2: Hardware & I/O (v0.3.0)
 [![Status](https://img.shields.io/badge/Status-Planned-yellow.svg)](https://github.com/Nanaimo2013/NansOS/milestone/2)
-#### Q3 2024
+#### Q3 2025
+- [ ] Input Devices
+  - [ ] PS/2 keyboard driver
+  - [ ] Mouse support
+  - [ ] USB planning
+- [ ] Display System
+  - [ ] VGA driver improvements
+  - [ ] Text mode enhancements
+  - [ ] Basic graphics mode
+- [ ] Hardware Detection
+  - [ ] PCI enumeration
+  - [ ] ACPI support
+  - [ ] Device management
+
+### 🎯 Milestone 3: Storage & FS (v0.4.0)
+[![Status](https://img.shields.io/badge/Status-Planned-yellow.svg)](https://github.com/Nanaimo2013/NansOS/milestone/3)
+#### Q4 2025
+- [ ] Storage Systems
+  - [ ] ATA/IDE driver
+  - [ ] DMA support
+  - [ ] Disk caching
 - [ ] File System
-  - [ ] Enhanced FAT12 support
+  - [ ] VFS implementation
   - [ ] Basic file operations
   - [ ] Directory structure
-- [ ] Storage
-  - [ ] Improved disk driver
-  - [ ] Disk caching
-  - [ ] Multiple drive support
+- [ ] System Integration
+  - [ ] Boot configuration
+  - [ ] System files
+  - [ ] Error logging
 
-### 🎯 Milestone 3: User Interface Enhancement (v1.3.0)
-[![Status](https://img.shields.io/badge/Status-Planned-yellow.svg)](https://github.com/Nanaimo2013/NansOS/milestone/3)
-#### Q4 2024
-- [ ] Terminal Interface
-  - [ ] Advanced text rendering
-  - [ ] Color schemes
-  - [ ] Custom fonts
-- [ ] Window System
-  - [ ] Multiple terminal windows
-  - [ ] Window management
-  - [ ] Basic GUI framework
-
-### 🎯 Milestone 4: Network Implementation (v1.4.0)
+### 🎯 Milestone 4: User Space (v0.5.0)
 [![Status](https://img.shields.io/badge/Status-Planned-yellow.svg)](https://github.com/Nanaimo2013/NansOS/milestone/4)
-#### Q1 2025
-- [ ] Network Stack
-  - [ ] Basic TCP/IP support
-  - [ ] Network device drivers
-  - [ ] Simple network services
-- [ ] Remote Access
-  - [ ] Terminal server
-  - [ ] Basic remote shell
-
-### 🎯 Milestone 5: System Services (v1.5.0)
-[![Status](https://img.shields.io/badge/Status-Planned-yellow.svg)](https://github.com/Nanaimo2013/NansOS/milestone/5)
-#### Q2 2025
-- [ ] System Services
-  - [ ] Device management
-  - [ ] Service management
-  - [ ] System logging
-- [ ] Security
-  - [ ] User authentication
+#### Q1 2026
+- [ ] Process Management
+  - [ ] Task switching
+  - [ ] Scheduling
+  - [ ] User processes
+- [ ] Memory Protection
+  - [ ] User/kernel separation
+  - [ ] Virtual memory
   - [ ] Access control
-  - [ ] Resource isolation
+- [ ] System Calls
+  - [ ] Basic syscall interface
+  - [ ] Process APIs
+  - [ ] File APIs
+
+### 🎯 Milestone 5: Shell & Tools (v0.6.0)
+[![Status](https://img.shields.io/badge/Status-Planned-yellow.svg)](https://github.com/Nanaimo2013/NansOS/milestone/5)
+#### Q2 2026
+- [ ] Basic Shell
+  - [ ] Command parsing
+  - [ ] Built-in commands
+  - [ ] Script support
+- [ ] System Tools
+  - [ ] File utilities
+  - [ ] System monitors
+  - [ ] Debug tools
+- [ ] User Programs
+  - [ ] Text editor
+  - [ ] System info
+  - [ ] Package manager
 
 ## 🔮 Future Enhancements
 
@@ -100,40 +145,22 @@
 <tr>
 <td>
 
-### 🎨 Graphics
+### 🎨 Graphics & UI
 [![Status](https://img.shields.io/badge/Status-Future-purple.svg)](https://github.com/Nanaimo2013/NansOS/milestone/6)
-- VGA graphics mode
+- GUI framework
+- Window management
 - Hardware acceleration
-- 3D terminal effects
+- Custom themes
 
 </td>
 <td>
 
-### 🔊 Audio
+### 🔌 Networking
 [![Status](https://img.shields.io/badge/Status-Future-purple.svg)](https://github.com/Nanaimo2013/NansOS/milestone/7)
-- Sound system
-- Multiple audio formats
-- Terminal sound effects
-
-</td>
-</tr>
-<tr>
-<td>
-
-### 🛠️ Development Tools
-[![Status](https://img.shields.io/badge/Status-Future-purple.svg)](https://github.com/Nanaimo2013/NansOS/milestone/8)
-- Integrated debugger
-- System monitoring
-- Performance profiling
-
-</td>
-<td>
-
-### 📚 Documentation
-[![Status](https://img.shields.io/badge/Status-Ongoing-green.svg)](https://github.com/Nanaimo2013/NansOS/milestone/9)
-- Complete API documentation
-- Developer guides
-- User manual
+- Network stack
+- Basic protocols
+- Socket API
+- Network tools
 
 </td>
 </tr>
@@ -141,23 +168,26 @@
 
 ## 🔄 Continuous Improvement
 
-### 🧪 Testing
-[![Tests](https://img.shields.io/badge/Tests-Ongoing-brightgreen.svg)](https://github.com/Nanaimo2013/NansOS/actions)
-- Unit test framework
+### 🧪 Testing & Quality
+[![Tests](https://img.shields.io/badge/Tests-Ongoing-yellow.svg)](https://github.com/Nanaimo2013/NansOS/actions)
+- Unit testing framework
 - Integration tests
-- Automated testing
+- Performance benchmarks
+- Coverage tracking
 
-### 🔧 Technical Debt & Optimization
-[![CodeQL](https://img.shields.io/badge/CodeQL-Enabled-success.svg)](https://github.com/Nanaimo2013/NansOS/security/code-scanning)
-- Code cleanup
-- Performance optimization
+### 🔧 Optimization
+[![CodeQL](https://img.shields.io/badge/CodeQL-Planned-yellow.svg)](https://github.com/Nanaimo2013/NansOS/security/code-scanning)
+- Performance tuning
 - Memory optimization
+- Boot time reduction
+- Code cleanup
 
-### 🏗️ Build System
-[![Build](https://img.shields.io/badge/Build-Passing-brightgreen.svg)](https://github.com/Nanaimo2013/NansOS/actions)
-- Cross-platform support
-- Build optimization
-- Package management
+### 🏗️ Infrastructure
+[![Build](https://img.shields.io/badge/Build-Evolving-blue.svg)](https://github.com/Nanaimo2013/NansOS/actions)
+- CI/CD pipeline
+- Test automation
+- Documentation system
+- Development tools
 
 ---
 
@@ -165,7 +195,8 @@
 
 **[📖 Documentation](docs/architecture.md)** •
 **[🚀 Getting Started](docs/building.md)** •
-**[💡 Contributing](CONTRIBUTING.md)** •
-**[📝 Issues](https://github.com/Nanaimo2013/NansOS/issues)**
+**[💡 Contributing](CONTRIBUTING.md)**
+
+Made with ❤️ by NansStudios
 
 </div> 

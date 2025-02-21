@@ -1,25 +1,27 @@
 # NansOS Build System Documentation
+By NansStudios
 
 <div align="center">
 
-[![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen.svg?style=for-the-badge)](https://github.com/Nanaimo2013/NansOS/actions)
-[![PowerShell](https://img.shields.io/badge/PowerShell-5.1+-blue.svg?style=for-the-badge)](https://github.com/PowerShell/PowerShell)
+[![Build Status](https://img.shields.io/badge/Build-In_Progress-yellow.svg?style=for-the-badge)](https://github.com/Nanaimo2013/NansOS/actions)
+[![Make](https://img.shields.io/badge/Make-4.0+-blue.svg?style=for-the-badge)](https://www.gnu.org/software/make/)
 [![NASM](https://img.shields.io/badge/NASM-2.15+-orange.svg?style=for-the-badge)](https://www.nasm.us/)
+[![GCC](https://img.shields.io/badge/GCC-x86__64--elf-green.svg?style=for-the-badge)](https://gcc.gnu.org/)
 
 </div>
 
 ## 🚀 Quick Start
 
-```powershell
+```bash
 # Clone repository
 git clone https://github.com/Nanaimo2013/NansOS.git
 cd NansOS
 
 # Build OS
-.\build.ps1
+make build-x86_64
 
 # Run in QEMU
-.\run.bat
+qemu-system-x86_64 -cdrom dist/x86_64/kernel.iso
 ```
 
 ## 📋 Prerequisites
@@ -32,20 +34,24 @@ cd NansOS
 [![Tools](https://img.shields.io/badge/Tools-Required-red.svg)](https://github.com/Nanaimo2013/NansOS)
 
 - NASM v2.15+
-- MinGW-w64 (GNU LD)
-- QEMU
-- PowerShell 5.1+
-- Git
+- GCC x86_64-elf cross-compiler
+- GNU Make 4.0+
+- QEMU (for testing)
+- Docker (optional, for build environment)
 
 </td>
 <td width="50%">
 
 ### 📥 Installation
+
+#### Windows (Using Chocolatey)
 ```powershell
-# Using Chocolatey
-choco install nasm
-choco install mingw
-choco install qemu
+choco install make nasm qemu docker-desktop
+```
+
+#### Linux (Debian/Ubuntu)
+```bash
+apt install build-essential nasm qemu-system-x86 docker.io
 ```
 
 </td>
@@ -58,30 +64,34 @@ choco install qemu
 <tr>
 <td width="50%">
 
-### 📂 Directory Layout
+### 📂 Source Layout
 ```
-NansOS/
-├── src/               # Source code
-│   ├── boot/         # Bootloader
-│   ├── kernel/       # Kernel
-│   ├── drivers/      # Drivers
-│   └── gui/          # Interface
-├── docs/             # Documentation
-├── tools/            # Dev tools
-└── builds/           # Build output
+src/
+├── impl/           # Implementations
+│   ├── x86_64/    # x86_64 specific
+│   │   ├── boot/  # Boot code
+│   │   └── ...    # Other arch code
+│   └── kernel/    # Kernel code
+└── intf/          # Interfaces
+    └── ...        # Header files
 ```
 
 </td>
 <td width="50%">
 
-### 🔧 Key Components
-[![Components](https://img.shields.io/badge/Components-Core-blue.svg)](https://github.com/Nanaimo2013/NansOS)
+### 🎯 Build Outputs
+```
+build/              # Build artifacts
+├── x86_64/        # Architecture builds
+│   ├── boot/      # Boot objects
+│   └── kernel/    # Kernel objects
+└── ...            # Other artifacts
 
-- **Bootloader**: Stage 1 & 2
-- **Kernel**: Core system
-- **Drivers**: Hardware support
-- **GUI**: User interface
-- **Tools**: Build scripts
+dist/               # Final outputs
+└── x86_64/        # Distribution files
+    ├── kernel.bin # Kernel binary
+    └── kernel.iso # Bootable image
+```
 
 </td>
 </tr>
@@ -89,39 +99,37 @@ NansOS/
 
 ## 🏗️ Build Process
 
-### 📜 Build Scripts
+### 📜 Build Targets
 
 <table>
 <tr>
 <td width="50%">
 
-#### build.ps1
-[![Script](https://img.shields.io/badge/Script-Main-green.svg)](https://github.com/Nanaimo2013/NansOS)
-```powershell
-# Standard build
-.\build.ps1
+#### Main Targets
+```makefile
+# Build everything
+make all
 
-# Release build
-.\build.ps1 -BuildType release -Version "1.0.0"
+# Build x86_64
+make build-x86_64
 
-# Clean build
-.\build.ps1 -Clean
+# Clean build files
+make clean
 ```
 
 </td>
 <td width="50%">
 
-#### run.bat
-[![Script](https://img.shields.io/badge/Script-Runner-blue.svg)](https://github.com/Nanaimo2013/NansOS)
-```batch
-# Run OS
-run.bat
+#### Development Targets
+```makefile
+# Run in QEMU
+make run
 
-# Debug mode
-run.bat debug
+# Debug with GDB
+make debug
 
-# Build only
-run.bat build
+# Build Docker env
+make buildenv
 ```
 
 </td>
@@ -134,80 +142,65 @@ run.bat build
 <tr>
 <td width="33%">
 
-### 📝 Version Control
-[![Version](https://img.shields.io/badge/Version-Managed-blue.svg)](https://github.com/Nanaimo2013/NansOS)
-- `version.conf`
-- Build numbering
-- Component versions
+### 🔧 Compiler Flags
+```makefile
+CFLAGS = -ffreestanding \
+         -mno-red-zone \
+         -mno-mmx \
+         -mno-sse
+```
 
 </td>
 <td width="33%">
 
-### 🎯 Build Types
-[![Types](https://img.shields.io/badge/Types-Multiple-green.svg)](https://github.com/Nanaimo2013/NansOS)
-- Test (default)
-- Release
-- Debug
+### 🔨 Assembler Flags
+```makefile
+NASMFLAGS = -f elf64 \
+            -F dwarf \
+            -g
+```
 
 </td>
 <td width="33%">
 
-### 📊 Output
-[![Output](https://img.shields.io/badge/Output-Managed-orange.svg)](https://github.com/Nanaimo2013/NansOS)
-- Disk images
-- Debug symbols
-- Build info
+### 🔗 Linker Flags
+```makefile
+LDFLAGS = -n \
+          -T linker.ld \
+          --no-dynamic-linker
+```
 
 </td>
 </tr>
 </table>
 
-## 🔨 Build Steps
+## 🐳 Docker Build Environment
 
 <table>
 <tr>
 <td width="50%">
 
-### 1️⃣ Compilation
-```powershell
-# Stage 1 Bootloader
-nasm -f bin src/boot/stage1.asm -o bin/stage1.bin
+### 🏗️ Building the Environment
+```bash
+# Build Docker image
+docker build buildenv -t nansos-buildenv
 
-# Stage 2 Bootloader
-nasm -f bin src/boot/stage2.asm -o bin/stage2.bin
+# Run container
+docker run --rm -it -v ${PWD}:/root/env nansos-buildenv
 
-# Kernel components
-nasm -f elf64 src/kernel/*.asm -o bin/*.o
+# Inside container
+make build-x86_64
 ```
 
 </td>
 <td width="50%">
 
-### 2️⃣ Linking
-```powershell
-# Link kernel
-ld -m i386pep -T src/config/linker.ld -o bin/kernel.bin *.o
-```
-
-</td>
-</tr>
-<tr>
-<td width="50%">
-
-### 3️⃣ Image Creation
-- 1.44MB floppy image
-- Sector 0: Stage 1 (512B)
-- Sectors 1-2: Stage 2 (1KB)
-- Sectors 3+: Kernel
-
-</td>
-<td width="50%">
-
-### 4️⃣ Verification
-- Size checks
-- Signature validation
-- Boot sector test
-- Component integrity
+### 📝 Environment Details
+- Based on Debian
+- Pre-installed tools
+- Cross-compiler setup
+- Build dependencies
+- Consistent environment
 
 </td>
 </tr>
@@ -220,24 +213,29 @@ ld -m i386pep -T src/config/linker.ld -o bin/kernel.bin *.o
 <td width="50%">
 
 ### 🖥️ QEMU Testing
-[![QEMU](https://img.shields.io/badge/QEMU-Supported-green.svg)](https://github.com/Nanaimo2013/NansOS)
-```powershell
-# Basic testing
-qemu-system-x86_64 -fda builds/nanos.img
+```bash
+# Basic run
+make run
 
-# With debugging
-qemu-system-x86_64 -fda builds/nanos.img -s -S
+# With serial output
+make run-serial
+
+# With monitor
+make run-monitor
 ```
 
 </td>
 <td width="50%">
 
-### 🐛 GDB Debugging
-[![GDB](https://img.shields.io/badge/GDB-Enabled-blue.svg)](https://github.com/Nanaimo2013/NansOS)
+### 🐛 Debugging
 ```bash
-# Connect to QEMU
+# Start GDB server
+make debug
+
+# In another terminal
 gdb
-target remote localhost:1234
+(gdb) target remote localhost:1234
+(gdb) symbol-file build/kernel.sym
 ```
 
 </td>
@@ -251,68 +249,37 @@ target remote localhost:1234
 <td width="50%">
 
 ### 🚫 Build Errors
-[![Errors](https://img.shields.io/badge/Errors-Common-red.svg)](https://github.com/Nanaimo2013/NansOS)
+1. **Missing Tools**
+   ```
+   Command 'nasm' not found
+   ```
+   - Install required tools
+   - Check PATH variable
 
-1. **Size Errors**
+2. **Permission Issues**
    ```
-   Stage 1 exceeds 512 bytes
-   Stage 2 exceeds 1024 bytes
+   Permission denied: dist/
    ```
-   - Optimize code
-   - Move functionality
-
-2. **Section Warnings**
-   ```
-   section below image base
-   ```
-   - Normal for bootloader
-   - Can be ignored
+   - Check directory permissions
+   - Run with proper privileges
 
 </td>
 <td width="50%">
 
 ### ⚠️ Runtime Issues
-[![Issues](https://img.shields.io/badge/Issues-Runtime-orange.svg)](https://github.com/Nanaimo2013/NansOS)
+1. **QEMU Problems**
+   ```
+   Could not initialize SDL
+   ```
+   - Install SDL libraries
+   - Try different display backend
 
-1. **Boot Failures**
-   - Check stage sizes
-   - Verify load addresses
-   - Check GDT setup
-
-2. **Kernel Panics**
-   - Use GDB debugging
-   - Check memory map
-   - Verify interrupts
-
-</td>
-</tr>
-</table>
-
-## 🔧 Build Customization
-
-<table>
-<tr>
-<td width="50%">
-
-### 🎛️ Custom Builds
-[![Custom](https://img.shields.io/badge/Custom-Builds-blue.svg)](https://github.com/Nanaimo2013/NansOS)
-```powershell
-# Component build
-.\build.ps1 -Component bootloader
-
-# Custom version
-.\build.ps1 -Version "1.1.0-alpha"
-```
-
-</td>
-<td width="50%">
-
-### 🌍 Environment
-[![Env](https://img.shields.io/badge/Environment-Variables-green.svg)](https://github.com/Nanaimo2013/NansOS)
-```powershell
-$env:NANOS_DEBUG = 1
-$env:NANOS_OPTIMIZE = 1
-```
+2. **GDB Connection**
+   ```
+   Connection refused
+   ```
+   - Check if QEMU is running
+   - Verify port number
 
 </td>
 </tr>
@@ -324,29 +291,31 @@ $env:NANOS_OPTIMIZE = 1
 <tr>
 <td width="50%">
 
-### 🔁 GitHub Actions
-[![CI](https://img.shields.io/badge/CI-GitHub-blue.svg)](https://github.com/Nanaimo2013/NansOS)
+### 👷 Build Pipeline
 ```yaml
-name: NansOS Build
+name: Build
 on: [push, pull_request]
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - name: Build
-        run: .\build.ps1
+        run: make build-x86_64
 ```
 
 </td>
 <td width="50%">
 
-### 📊 Build Matrix
-[![Matrix](https://img.shields.io/badge/Matrix-Builds-green.svg)](https://github.com/Nanaimo2013/NansOS)
-- Windows/Linux
-- Debug/Release
-- x86/x64
-- Test suites
+### 🎯 Build Matrix
+- Operating Systems
+  - Ubuntu Latest
+  - Windows Latest
+- Architectures
+  - x86_64
+- Build Types
+  - Debug
+  - Release
 
 </td>
 </tr>
@@ -358,7 +327,8 @@ jobs:
 
 **[🏠 Home](../README.md)** •
 **[📖 Documentation](architecture.md)** •
-**[🚀 Roadmap](roadmap.md)** •
-**[💡 Contributing](../CONTRIBUTING.md)**
+**[🚀 Roadmap](roadmap.md)**
+
+Made with ❤️ by NansStudios
 
 </div> 
