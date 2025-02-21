@@ -38,6 +38,8 @@ qemu-system-x86_64 -cdrom dist/x86_64/kernel.iso
 - GNU Make 4.0+
 - QEMU (for testing)
 - Docker (optional, for build environment)
+- Git 2.0+
+- CMake 3.10+ (for some components)
 
 </td>
 <td width="50%">
@@ -46,12 +48,12 @@ qemu-system-x86_64 -cdrom dist/x86_64/kernel.iso
 
 #### Windows (Using Chocolatey)
 ```powershell
-choco install make nasm qemu docker-desktop
+choco install make nasm qemu docker-desktop cmake git
 ```
 
 #### Linux (Debian/Ubuntu)
 ```bash
-apt install build-essential nasm qemu-system-x86 docker.io
+apt install build-essential nasm qemu-system-x86 docker.io cmake git
 ```
 
 </td>
@@ -71,6 +73,10 @@ src/
 │   ├── x86_64/    # x86_64 specific
 │   │   ├── boot/  # Boot code
 │   │   └── ...    # Other arch code
+│   ├── drivers/   # Device drivers
+│   │   ├── storage/  # Storage drivers
+│   │   ├── keyboard/ # Input drivers
+│   │   └── ...    # Other drivers
 │   └── kernel/    # Kernel code
 └── intf/          # Interfaces
     └── ...        # Header files
@@ -84,6 +90,7 @@ src/
 build/              # Build artifacts
 ├── x86_64/        # Architecture builds
 │   ├── boot/      # Boot objects
+│   ├── drivers/   # Driver objects
 │   └── kernel/    # Kernel objects
 └── ...            # Other artifacts
 
@@ -115,6 +122,9 @@ make build-x86_64
 
 # Clean build files
 make clean
+
+# Run tests
+make test
 ```
 
 </td>
@@ -130,6 +140,9 @@ make debug
 
 # Build Docker env
 make buildenv
+
+# Run external tests
+make external-test
 ```
 
 </td>
@@ -147,7 +160,10 @@ make buildenv
 CFLAGS = -ffreestanding \
          -mno-red-zone \
          -mno-mmx \
-         -mno-sse
+         -mno-sse \
+         -O2 \
+         -Wall \
+         -Wextra
 ```
 
 </td>
@@ -157,7 +173,8 @@ CFLAGS = -ffreestanding \
 ```makefile
 NASMFLAGS = -f elf64 \
             -F dwarf \
-            -g
+            -g \
+            -w+all
 ```
 
 </td>
@@ -167,7 +184,8 @@ NASMFLAGS = -f elf64 \
 ```makefile
 LDFLAGS = -n \
           -T linker.ld \
-          --no-dynamic-linker
+          --no-dynamic-linker \
+          -z max-page-size=0x1000
 ```
 
 </td>
@@ -201,12 +219,13 @@ make build-x86_64
 - Cross-compiler setup
 - Build dependencies
 - Consistent environment
+- Automated testing support
 
 </td>
 </tr>
 </table>
 
-## 🧪 Testing
+## �� Testing
 
 <table>
 <tr>
@@ -222,6 +241,9 @@ make run-serial
 
 # With monitor
 make run-monitor
+
+# With storage devices
+make run-storage
 ```
 
 </td>
@@ -236,6 +258,7 @@ make debug
 gdb
 (gdb) target remote localhost:1234
 (gdb) symbol-file build/kernel.sym
+(gdb) break kernel_main
 ```
 
 </td>
@@ -263,6 +286,14 @@ gdb
    - Check directory permissions
    - Run with proper privileges
 
+3. **Compilation Errors**
+   ```
+   undefined reference to...
+   ```
+   - Check include paths
+   - Verify dependencies
+   - Update toolchain
+
 </td>
 <td width="50%">
 
@@ -280,6 +311,14 @@ gdb
    ```
    - Check if QEMU is running
    - Verify port number
+
+3. **Storage Issues**
+   ```
+   No boot device found
+   ```
+   - Check storage configuration
+   - Verify device paths
+   - Update QEMU parameters
 
 </td>
 </tr>
@@ -302,6 +341,8 @@ jobs:
       - uses: actions/checkout@v2
       - name: Build
         run: make build-x86_64
+      - name: Test
+        run: make external-test
 ```
 
 </td>
@@ -316,6 +357,10 @@ jobs:
 - Build Types
   - Debug
   - Release
+- Test Suites
+  - Unit Tests
+  - Integration Tests
+  - External Tests
 
 </td>
 </tr>

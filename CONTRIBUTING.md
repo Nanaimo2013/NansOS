@@ -50,6 +50,7 @@ Report bugs to help us improve:
 - Expected vs actual behavior
 - Screenshots if applicable
 - System information
+- Test case if possible
 
 </td>
 <td width="33%">
@@ -63,6 +64,7 @@ Suggest new features:
 - Implementation ideas
 - Potential impacts
 - Related features
+- Design mockups
 
 </td>
 <td width="33%">
@@ -75,6 +77,7 @@ Submit code changes:
 - Create feature branch
 - Add/update tests
 - Update documentation
+- Follow style guide
 - Submit PR
 
 </td>
@@ -97,6 +100,12 @@ cd NansOS
 
 # Install dependencies
 # See docs/building.md
+
+# Build Docker environment
+docker build buildenv -t nansos-buildenv
+
+# Run tests
+make test
 ```
 
 </td>
@@ -113,6 +122,10 @@ git checkout -b feature/your-feature
 git add .
 git commit -m "feat: description"
 
+# Run tests
+make test
+make external-test
+
 # Submit PR
 git push origin feature/your-feature
 ```
@@ -127,35 +140,29 @@ git push origin feature/your-feature
 <tr>
 <td width="50%">
 
-### 🔍 Assembly Style Guide
-[![Style](https://img.shields.io/badge/Style-Assembly-blue.svg)](https://github.com/Nanaimo2013/NansOS)
+### 🔍 C Style Guide
+[![Style](https://img.shields.io/badge/Style-C-blue.svg)](https://github.com/Nanaimo2013/NansOS)
 
-```nasm
-; File header with description
-[BITS 64]
-section .data
-    ; Clear descriptive names
-    counter:    dq 0
-    message:    db 'Hello', 0
-
-section .text
-global my_function
-
-; Function header with description
-my_function:
-    ; Preserve registers
-    push rbp
-    mov rbp, rsp
+```c
+/**
+ * Function description
+ * @param param1 Description
+ * @return Description
+ */
+int my_function(int param1) {
+    /* Variable declarations */
+    int result = 0;
     
-    ; Clear indentation
-    mov rax, [counter]
-    inc rax
-    mov [counter], rax
+    /* Input validation */
+    if (param1 < 0) {
+        return -1;
+    }
     
-    ; Restore registers
-    mov rsp, rbp
-    pop rbp
-    ret
+    /* Function logic */
+    result = process_data(param1);
+    
+    return result;
+}
 ```
 
 </td>
@@ -180,6 +187,8 @@ Types:
 - refactor: Code restructuring
 - test: Adding tests
 - chore: Maintenance
+- perf: Performance improvements
+- ci: CI/CD changes
 
 </td>
 </tr>
@@ -194,13 +203,18 @@ Types:
 ### 💭 Code Comments
 [![Comments](https://img.shields.io/badge/Comments-Required-blue.svg)](https://github.com/Nanaimo2013/NansOS)
 
-```nasm
-; Function: process_input
-; Description: Processes keyboard input
-; Parameters:
-;   - AL: Scancode
-; Returns:
-;   - RAX: Processed character
+```c
+/**
+ * Function: process_input
+ * Description: Processes keyboard input
+ * 
+ * @param scancode Raw keyboard scancode
+ * @param flags Input flags
+ * @return Processed character or error code
+ * 
+ * @note Thread-safe
+ * @see keyboard.h
+ */
 ```
 
 </td>
@@ -209,12 +223,17 @@ Types:
 ### 📖 File Headers
 [![Headers](https://img.shields.io/badge/Headers-Required-blue.svg)](https://github.com/Nanaimo2013/NansOS)
 
-```nasm
-; NansOS Component Name
-; Brief description
-; Author: Your Name
-; Copyright (c) 2025 NansStudios
-; Date: YYYY-MM-DD
+```c
+/**
+ * NansOS Component Name
+ * Brief description
+ * 
+ * @file filename.c
+ * @author Your Name
+ * @date YYYY-MM-DD
+ * @copyright (c) 2025 NansStudios
+ * @license MIT
+ */
 ```
 
 </td>
@@ -230,13 +249,18 @@ Types:
 ### ▶️ Running Tests
 [![Tests](https://img.shields.io/badge/Tests-Required-red.svg)](https://github.com/Nanaimo2013/NansOS)
 
-```powershell
-# Build and test
-.\build.ps1
-.\run.bat
+```bash
+# Build and run unit tests
+make test
 
-# Debug mode
-.\run.bat debug
+# Run external tests
+make external-test
+
+# Run with coverage
+make test-coverage
+
+# Debug tests
+make test-debug
 ```
 
 </td>
@@ -245,10 +269,13 @@ Types:
 ### ➕ Adding Tests
 [![Coverage](https://img.shields.io/badge/Coverage-Expanding-green.svg)](https://github.com/Nanaimo2013/NansOS)
 
-1. Create test file
+1. Create test file in tests/
 2. Follow naming convention
-3. Update documentation
-4. Verify coverage
+3. Add test cases
+4. Update test suite
+5. Add to build system
+6. Verify coverage
+7. Document test cases
 
 </td>
 </tr>
@@ -268,6 +295,8 @@ Join our Discord server for:
 - Community support
 - Development discussion
 - Feature requests
+- Bug reports
+- Project updates
 
 </td>
 <td width="50%">
@@ -280,6 +309,8 @@ Use GitHub Issues for:
 - Feature requests
 - Documentation issues
 - Project planning
+- Release tracking
+- Security reports
 
 </td>
 </tr>

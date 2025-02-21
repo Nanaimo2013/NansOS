@@ -7,21 +7,51 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- Basic VGA text mode support
-- Simple color text output
-- Memory management foundations
+- Storage device driver interface
+- Initial setup wizard
+- Language selection support
+- Display configuration options
+- Keyboard layout selection
+- Timezone configuration
 
 ### Changed
-- Updated build system for x86_64
-- Simplified project structure
-- Basic bootloader implementation
+- Enhanced boot sequence with configuration options
+- Improved keyboard and mouse driver initialization
+- Updated system initialization messages
+- Enhanced debug output formatting
 
 ### Fixed
-- Boot sector formatting and alignment
-- Memory initialization sequence
-- Build system compatibility
+- Keyboard initialization sequence
+- Mouse driver detection
+- Memory management initialization
+- Serial port communication reliability
 
-## [0.1.0] - 2025-03-20
+## [v0.2.0] - 2025-03-21
+### Added
+- Basic storage subsystem
+- RAM disk implementation
+- Virtual filesystem interface
+- File operations support
+- Device driver framework
+
+### Changed
+- Improved memory management
+- Enhanced error handling
+- Updated build system
+- Better debug messaging
+
+### Fixed
+- Memory allocation bugs
+- Interrupt handling issues
+- Keyboard input processing
+- System initialization sequence
+
+### Security
+- Added basic memory protection
+- Improved error checking
+- Enhanced system stability
+
+## [v0.1.0] - 2025-03-20
 ### Added
 - Initial bootloader implementation
 - Basic 64-bit mode transition

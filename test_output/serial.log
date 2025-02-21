@@ -1,0 +1,55 @@
+c[?7l[2J[0mSeaBIOS (version rel-1.16.3-0-ga6ed6b701f0a-prebuilt.qemu.org)
+
+
+iPXE (http://ipxe.org) 00:03.0 CA00 PCI2.10 PnP PMM+06FD1090+06F31090 CA00
+Press Ctrl-B to configure iPXE (PCI 00:03.0)...                                                                               
+
+
+Booting from Hard Disk...
+Boot failed: could not read the boot disk
+
+Booting from Floppy...
+Boot failed: could not read the boot disk
+
+Booting from DVD/CD...
+[0;30;47mWelcome to GRUB!
+
+[H[J[1;1H[H[J[1;1H[01;01H[0m[2J   Booting `NansOS - 64-bit Operating System' Booting `NansOS - 64-bit Operating System
+
+'
+
+Serial port initialized
+Kernel started
+[DEBUG] Starting system initialization...
+[DEBUG] Initializing memory management...
+[DEBUG] Memory management initialized
+[DEBUG] Initializing system information...
+[DEBUG] System information initialized
+[DEBUG] Initializing IDT...
+IDT initialized
+[DEBUG] IDT initialized
+[DEBUG] Initializing PIC...
+[DEBUG] PIC initialized
+[DEBUG] Initializing PIT...
+[PIT] Timer initialized
+[DEBUG] PIT initialized
+[DEBUG] Initializing serial port...
+[DEBUG] Serial port initialized
+[DEBUG] Initializing RTC...
+[DEBUG] RTC initialized
+[DEBUG] Initializing keyboard...
+[DEBUG] Starting keyboard initialization...
+[DEBUG] Keyboard interrupt enabled
+[DEBUG] Keyboard controller configured
+[DEBUG] Keyboard reset acknowledged
+[DEBUG] Keyboard self-test passed
+[DEBUG] Scancode set configured
+[KBD] Keyboard enabled
+[KBD] PS/2 mouse initialized
+[DEBUG] Keyboard subsystem ready
+[DEBUG] Keyboard initialization complete
+[DEBUG] Keyboard initialization complete
+[DEBUG] Initializing mouse...
+[DEBUG] Mouse initialization complete
+[DEBUG] Enabling interrupts...
+¥þGeneral protection fault
