@@ -2,4 +2,4 @@ boot/kernel.bin
 build
 dist
 .vscode
-
+test_output
